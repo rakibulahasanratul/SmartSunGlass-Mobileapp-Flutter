@@ -8,6 +8,7 @@ import 'db/model/master_table_model.dart'; //master database model initialize
 import 'db/model/slave_table_model.dart'; //slave database model initialize
 import 'db/service/database_service.dart'; //database service initilize include
 
+//modification
 class DeviceScreen extends StatefulWidget {
   const DeviceScreen({Key? key, required this.device}) : super(key: key);
 
