@@ -6,6 +6,7 @@ import 'widgets.dart';
 import 'db/service/database_service.dart'; //DB service package initialize
 //import 'package:flutter_blue_example/widgets.dart';
 //import 'package:flutter_blue_example/batterywidget.dart';
+//New import
 
 void main() {
   runApp(FlutterBlueApp());
