@@ -6,9 +6,10 @@ import 'package:flutter_blue/flutter_blue.dart';
 
 import 'db/model/master_table_model.dart'; //master database model initialize
 import 'db/model/slave_table_model.dart'; //slave database model initialize
-import 'db/service/database_service.dart'; //database service initilize include
+import 'db/service/database_service.dart';
+import 'details.dart'; //database service initilize include
 
-//modification
+//modificationg
 class DeviceScreen extends StatefulWidget {
   const DeviceScreen({Key? key, required this.device}) : super(key: key);
 
@@ -110,10 +111,10 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       rows.add(
         DataRow(
           cells: <DataCell>[
-            DataCell(Text(
+            /*DataCell(Text(
               mastervoldataDateShow[i].MV,
               textAlign: TextAlign.center,
-            )),
+            )),*/
             DataCell(Text(
               mastervoldataDateShow[i].TIME,
               textAlign: TextAlign.center,
@@ -122,10 +123,10 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
               double.parse(mastervoldataDateShow[i].MVP).toStringAsFixed(2),
               textAlign: TextAlign.center,
             )),
-            DataCell(Text(
+            /*DataCell(Text(
               double.parse(mastervoldataDateShow[i].MVD).toStringAsFixed(2),
               textAlign: TextAlign.center,
-            )),
+            )),*/
           ],
         ),
       );
@@ -140,10 +141,10 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       rows.add(
         DataRow(
           cells: <DataCell>[
-            DataCell(Text(
+            /*DataCell(Text(
               slavevoldataDateShow[i].SV,
               textAlign: TextAlign.center,
-            )),
+            )),*/
             DataCell(Text(
               slavevoldataDateShow[i].TIME,
               textAlign: TextAlign.center,
@@ -152,10 +153,10 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
               double.parse(slavevoldataDateShow[i].SVP).toStringAsFixed(2),
               textAlign: TextAlign.center,
             )),
-            DataCell(Text(
+            /*DataCell(Text(
               double.parse(slavevoldataDateShow[i].SVD).toStringAsFixed(2),
               textAlign: TextAlign.center,
-            )),
+            )),*/
           ],
         ),
       );
@@ -236,9 +237,9 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
           0]; // obtains the first list from the list of lists. This list has all the data we need
       //service4List = ["A1", 05, 6, 2];
       print('master service4List: ${service4List}');
-      service4Characteristic1 = service4List.elementAt(2) +
-          (service4List.elementAt(3) *
-              256); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
+      service4Characteristic1 = service4List.elementAt(0) * 256 +
+          (service4List.elementAt(
+              1)); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
       print('master service4Characteristic1: ${service4Characteristic1}');
 
       // this if-statement checks if the service4Characteristic1 received a value or not, and returns the service4Characteristic1 value if it did
@@ -266,6 +267,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       var service4Characteristics = service4
           .characteristics; // places all the characteristics of service 4 into a Characteristics list
       var character2uuid = service4Characteristics[1].uuid;
+      //var character2uuid = '55441002-3322-1100-0000-000000000000';
       print('character 2 service uuid: $character2uuid');
       // this for-loop obtains the value of each characteristic and puts it into a list called value
       if (isReading == false) {
@@ -288,9 +290,9 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       }
 
       service4List = service4ListIntermediate[0];
-      service4Characteristic1 = service4List.elementAt(0) +
-          (service4List.elementAt(1) *
-              256); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
+      service4Characteristic1 = service4List.elementAt(0) * 256 +
+          (service4List.elementAt(
+              1)); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
       log('service4Characteristic1: ${service4Characteristic1}');
 
       // this if-statement checks if the service4Characteristic1 received a value or not, and returns the service4Characteristic1 value if it did
@@ -437,7 +439,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
           onPressed: () {
             mastertimer = Timer.periodic(
                 Duration(
-                  seconds: 3,
+                  seconds: 60,
                 ), (timer) {
               log("Timer Working");
               getMasterVoltage(widget.device);
@@ -451,7 +453,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
             : DataTable(
                 columnSpacing: 30,
                 columns: const <DataColumn>[
-                  DataColumn(
+                  /*DataColumn(
                     label: Expanded(
                       child: Text(
                         'Voltage',
@@ -459,7 +461,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                  ),
+                  ),*/
                   DataColumn(
                     label: Expanded(
                       child: Text(
@@ -478,7 +480,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                       ),
                     ),
                   ),
-                  DataColumn(
+                  /*DataColumn(
                     label: Expanded(
                       child: Text(
                         'Difference',
@@ -486,7 +488,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                  ),
+                  ),*/
                 ],
                 rows: getMasterTableValues(),
               ),
@@ -495,7 +497,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
           onPressed: () {
             slavetimer = Timer.periodic(
                 Duration(
-                  seconds: 5,
+                  seconds: 60,
                 ), (timer) {
               getSlaveVoltage(widget.device);
               log("Timer Working");
@@ -508,7 +510,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
             : DataTable(
                 columnSpacing: 30,
                 columns: const <DataColumn>[
-                  DataColumn(
+                  /*DataColumn(
                     label: Expanded(
                       child: Text(
                         'Voltage',
@@ -516,7 +518,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                  ),
+                  ),*/
                   DataColumn(
                     label: Expanded(
                       child: Text(
@@ -535,78 +537,23 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                       ),
                     ),
                   ),
-                  DataColumn(
+                  /*DataColumn(
                     label: Expanded(
                       child: Text(
                         'Difference',
                         style: TextStyle(fontStyle: FontStyle.italic),
                       ),
                     ),
-                  ),
+                  ),*/
                 ],
                 rows: getSlaveTableValues(),
               ),
-        /*Container(
-          child: Text(
-              "Slave Battery Percentage: "
-              '${slaveBatterypercentage.toStringAsFixed(2)}',
-              style: TextStyle(fontSize: 20)),
-        ),
         ElevatedButton(
-            onPressed: () async {
-              await databaseService.getDataFromDatabase();
-              log(voldataDateShow[1].mvp);
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => Detailspage()));
             },
-            child: Text('Logtest')),
-        isloading == true
-            ? Container()
-            : DataTable(
-                columns: const <DataColumn>[
-                  DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'MV',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'MVP',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'SV',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'SVP',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                  ),
-                ],
-                rows: <DataRow>[
-                  DataRow(
-                    cells: <DataCell>[
-                      DataCell(Text(voldataDateShow[1].mv)),
-                      DataCell(Text(double.parse(voldataDateShow[1].mvp)
-                          .toStringAsFixed(2))),
-                      DataCell(Text(voldataDateShow[1].sv)),
-                      DataCell(Text(voldataDateShow[1].svp)),
-                    ],
-                  ),
-                ],
-              ),*/
+            child: Text('Details')),
         Container(
           // height: 155,
           height: 250,
