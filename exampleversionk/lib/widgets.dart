@@ -8,6 +8,7 @@ import 'db/model/master_table_model.dart'; //master database model initialize
 import 'db/model/slave_table_model.dart'; //slave database model initialize
 import 'db/service/database_service.dart';
 import 'details.dart'; //database service initilize include
+//import 'package:battery_plus/battery_plus.dart'; //Battey widget package
 
 //modificationg
 class DeviceScreen extends StatefulWidget {
@@ -120,7 +121,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
               textAlign: TextAlign.center,
             )),
             DataCell(Text(
-              double.parse(mastervoldataDateShow[i].MVP).toStringAsFixed(2),
+              double.parse(mastervoldataDateShow[i].MVP).toString(),
               textAlign: TextAlign.center,
             )),
             /*DataCell(Text(
@@ -237,9 +238,9 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
           0]; // obtains the first list from the list of lists. This list has all the data we need
       //service4List = ["A1", 05, 6, 2];
       print('master service4List: ${service4List}');
-      service4Characteristic1 = service4List.elementAt(0) * 256 +
+      service4Characteristic1 = service4List.elementAt(2) * 256 +
           (service4List.elementAt(
-              1)); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
+              3)); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
       print('master service4Characteristic1: ${service4Characteristic1}');
 
       // this if-statement checks if the service4Characteristic1 received a value or not, and returns the service4Characteristic1 value if it did
@@ -400,6 +401,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
               sendHexValue(services: services, hexValue: 0x01);
               log('0x01 hex value successfully sent to master board');
             }),
+        SizedBox(height: 20),
         ElevatedButton(
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.white,
@@ -412,6 +414,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
               sendHexValue(services: services, hexValue: 0x02);
               log('0x02 hex value successfully sent to master board');
             }),
+        SizedBox(height: 20),
         Container(
           child: Text("Glass Controller", style: TextStyle(fontSize: 20)),
         ),
@@ -434,12 +437,13 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
             divisions: 128,
             thumbColor: Colors.deepPurple,
             label: '$_glassSliderValue'),
+        // SizedBox(height: 20),
         TextButton(
           child: Text("MASTER VOLTAGE START"),
           onPressed: () {
             mastertimer = Timer.periodic(
                 Duration(
-                  seconds: 60,
+                  seconds: 5,
                 ), (timer) {
               log("Timer Working");
               getMasterVoltage(widget.device);
@@ -448,7 +452,66 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
             });
           },
         ),
-        isLoadingMaster == true
+        TextButton(
+          child: Text("SLAVE VOLTAGE START"),
+          onPressed: () {
+            slavetimer = Timer.periodic(
+                Duration(
+                  seconds: 5,
+                ), (timer) {
+              getSlaveVoltage(widget.device);
+              log("Timer Working");
+              //return timer.cancel();
+            });
+          },
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            isLoadingMaster == true
+                ? Container()
+                : Column(
+                    children: [
+                      Container(
+                        // width: 150,
+                        // height: 150,
+
+                        // ignore: prefer_const_constructors
+                        child: (Icon(Icons.battery_charging_full,
+                            size: 150,
+                            color:
+                                double.parse(mastervoldataDateShow[0].MVP) > 20
+                                    ? Colors.green
+                                    : Colors.red)),
+                      ),
+                      Text("MasterPercentage:" +
+                          "${double.parse(mastervoldataDateShow[0].MVP).toStringAsFixed(0)}"),
+                    ],
+                  ),
+            isLoadingSlave == true
+                ? Container()
+                : Column(
+                    children: [
+                      Container(
+                        // width: 150,
+                        // height: 150,
+
+                        // ignore: prefer_const_constructors
+                        child: (Icon(Icons.battery_charging_full,
+                            size: 150,
+                            color:
+                                double.parse(slavevoldataDateShow[0].SVP) < 20
+                                    ? Colors.green
+                                    : Colors.red)),
+                      ),
+                      Text("SlavePercentage:" +
+                          "${double.parse(slavevoldataDateShow[0].SVP).toStringAsFixed(0)}"),
+                    ],
+                  ),
+          ],
+        ),
+        SizedBox(height: 20),
+        /*isLoadingMaster == true
             ? Container()
             : DataTable(
                 columnSpacing: 30,
@@ -491,21 +554,8 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                   ),*/
                 ],
                 rows: getMasterTableValues(),
-              ),
-        TextButton(
-          child: Text("SLAVE VOLTAGE START"),
-          onPressed: () {
-            slavetimer = Timer.periodic(
-                Duration(
-                  seconds: 60,
-                ), (timer) {
-              getSlaveVoltage(widget.device);
-              log("Timer Working");
-              //return timer.cancel();
-            });
-          },
-        ),
-        isLoadingSlave == true
+              ),*/
+        /*isLoadingSlave == true
             ? Container()
             : DataTable(
                 columnSpacing: 30,
@@ -547,30 +597,13 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                   ),*/
                 ],
                 rows: getSlaveTableValues(),
-              ),
+              ),*/
         ElevatedButton(
             onPressed: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => Detailspage()));
             },
-            child: Text('Details')),
-        Container(
-          // height: 155,
-          height: 250,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: 330,
-            ),
-            Image.asset(
-              'assets/images/Miami_OH_JPG.jpg',
-              height: 60,
-              width: 60,
-            ),
-          ],
-        ),
+            child: Text('Details...')),
       ],
     );
   }
@@ -683,6 +716,11 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: Image.asset(
+        'assets/images/Miami_OH_JPG.jpg',
+        height: 60,
+        width: 60,
       ),
     );
   }

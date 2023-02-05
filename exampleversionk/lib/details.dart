@@ -31,8 +31,10 @@ class _DetailspageState extends State<Detailspage> {
   }
 
   Future<void> getSlaveFromDatabase() async {
-    List<SlaveDBmodel> slaveFromDb = await databaseService
-        .getLatestDataFromSlaveTable(); //This line is loading the latest data from the slave table. The row is configurable and changes is require in the database query
+    List<SlaveDBmodel> slaveFromDb =
+        await databaseService.getLatestDataFromSlaveTable(
+            limit:
+                '3'); //This line is loading the latest data from the slave table. The row is configurable and changes is require in the database query
     setState(() {
       slavedetails =
           slaveFromDb; //loading the data in the declared list slavevoldataDateShow[]
@@ -103,6 +105,7 @@ class _DetailspageState extends State<Detailspage> {
   @override
   void initState() {
     getMasterFromDatabase();
+    getSlaveFromDatabase();
     super.initState();
   }
 
@@ -112,6 +115,7 @@ class _DetailspageState extends State<Detailspage> {
       appBar: AppBar(title: Text('Details Voltage Data')),
       body: Column(
         children: [
+          ElevatedButton(onPressed: () {}, child: Text('Master Data')),
           isLoadingMaster
               ? Center(
                   child: CircularProgressIndicator(),
@@ -158,6 +162,7 @@ class _DetailspageState extends State<Detailspage> {
                   ],
                   rows: getMasterdetails(),
                 ),
+          ElevatedButton(onPressed: () {}, child: Text('Slave Data')),
           isLoadingSlave == true
               ? Container()
               : DataTable(
