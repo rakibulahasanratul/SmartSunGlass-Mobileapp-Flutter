@@ -6,8 +6,11 @@ import 'package:flutter_blue/flutter_blue.dart';
 
 import 'db/model/master_table_model.dart'; //master database model initialize
 import 'db/model/slave_table_model.dart'; //slave database model initialize
-import 'db/service/database_service.dart'; //database service initilize include
+import 'db/service/database_service.dart';
+import 'details.dart'; //database service initilize include
+//import 'package:battery_plus/battery_plus.dart'; //Battey widget package
 
+//modificationg
 class DeviceScreen extends StatefulWidget {
   const DeviceScreen({Key? key, required this.device}) : super(key: key);
 
@@ -109,22 +112,22 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       rows.add(
         DataRow(
           cells: <DataCell>[
-            DataCell(Text(
+            /*DataCell(Text(
               mastervoldataDateShow[i].MV,
               textAlign: TextAlign.center,
-            )),
+            )),*/
             DataCell(Text(
               mastervoldataDateShow[i].TIME,
               textAlign: TextAlign.center,
             )),
             DataCell(Text(
-              double.parse(mastervoldataDateShow[i].MVP).toStringAsFixed(2),
+              double.parse(mastervoldataDateShow[i].MVP).toString(),
               textAlign: TextAlign.center,
             )),
-            DataCell(Text(
+            /*DataCell(Text(
               double.parse(mastervoldataDateShow[i].MVD).toStringAsFixed(2),
               textAlign: TextAlign.center,
-            )),
+            )),*/
           ],
         ),
       );
@@ -139,10 +142,10 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       rows.add(
         DataRow(
           cells: <DataCell>[
-            DataCell(Text(
+            /*DataCell(Text(
               slavevoldataDateShow[i].SV,
               textAlign: TextAlign.center,
-            )),
+            )),*/
             DataCell(Text(
               slavevoldataDateShow[i].TIME,
               textAlign: TextAlign.center,
@@ -151,10 +154,10 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
               double.parse(slavevoldataDateShow[i].SVP).toStringAsFixed(2),
               textAlign: TextAlign.center,
             )),
-            DataCell(Text(
+            /*DataCell(Text(
               double.parse(slavevoldataDateShow[i].SVD).toStringAsFixed(2),
               textAlign: TextAlign.center,
-            )),
+            )),*/
           ],
         ),
       );
@@ -235,9 +238,9 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
           0]; // obtains the first list from the list of lists. This list has all the data we need
       //service4List = ["A1", 05, 6, 2];
       print('master service4List: ${service4List}');
-      service4Characteristic1 = service4List.elementAt(2) +
-          (service4List.elementAt(3) *
-              256); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
+      service4Characteristic1 = service4List.elementAt(2) * 256 +
+          (service4List.elementAt(
+              3)); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
       print('master service4Characteristic1: ${service4Characteristic1}');
 
       // this if-statement checks if the service4Characteristic1 received a value or not, and returns the service4Characteristic1 value if it did
@@ -265,6 +268,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       var service4Characteristics = service4
           .characteristics; // places all the characteristics of service 4 into a Characteristics list
       var character2uuid = service4Characteristics[1].uuid;
+      //var character2uuid = '55441002-3322-1100-0000-000000000000';
       print('character 2 service uuid: $character2uuid');
       // this for-loop obtains the value of each characteristic and puts it into a list called value
       if (isReading == false) {
@@ -287,9 +291,9 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       }
 
       service4List = service4ListIntermediate[0];
-      service4Characteristic1 = service4List.elementAt(0) +
-          (service4List.elementAt(1) *
-              256); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
+      service4Characteristic1 = service4List.elementAt(0) * 256 +
+          (service4List.elementAt(
+              1)); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
       log('service4Characteristic1: ${service4Characteristic1}');
 
       // this if-statement checks if the service4Characteristic1 received a value or not, and returns the service4Characteristic1 value if it did
@@ -397,6 +401,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
               sendHexValue(services: services, hexValue: 0x01);
               log('0x01 hex value successfully sent to master board');
             }),
+        SizedBox(height: 20),
         ElevatedButton(
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.white,
@@ -409,6 +414,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
               sendHexValue(services: services, hexValue: 0x02);
               log('0x02 hex value successfully sent to master board');
             }),
+        SizedBox(height: 20),
         Container(
           child: Text("Glass Controller", style: TextStyle(fontSize: 20)),
         ),
@@ -431,12 +437,13 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
             divisions: 128,
             thumbColor: Colors.deepPurple,
             label: '$_glassSliderValue'),
+        // SizedBox(height: 20),
         TextButton(
           child: Text("MASTER VOLTAGE START"),
           onPressed: () {
             mastertimer = Timer.periodic(
                 Duration(
-                  seconds: 3,
+                  seconds: 5,
                 ), (timer) {
               log("Timer Working");
               getMasterVoltage(widget.device);
@@ -445,50 +452,6 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
             });
           },
         ),
-        isLoadingMaster == true
-            ? Container()
-            : DataTable(
-                columnSpacing: 30,
-                columns: const <DataColumn>[
-                  DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'Voltage',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'Time',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'Percentage',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'Difference',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ],
-                rows: getMasterTableValues(),
-              ),
         TextButton(
           child: Text("SLAVE VOLTAGE START"),
           onPressed: () {
@@ -502,12 +465,58 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
             });
           },
         ),
-        isLoadingSlave == true
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            isLoadingMaster == true
+                ? Container()
+                : Column(
+                    children: [
+                      Container(
+                        // width: 150,
+                        // height: 150,
+
+                        // ignore: prefer_const_constructors
+                        child: (Icon(Icons.battery_charging_full,
+                            size: 150,
+                            color:
+                                double.parse(mastervoldataDateShow[0].MVP) > 20
+                                    ? Colors.green
+                                    : Colors.red)),
+                      ),
+                      Text("MasterPercentage:" +
+                          "${double.parse(mastervoldataDateShow[0].MVP).toStringAsFixed(0)}"),
+                    ],
+                  ),
+            isLoadingSlave == true
+                ? Container()
+                : Column(
+                    children: [
+                      Container(
+                        // width: 150,
+                        // height: 150,
+
+                        // ignore: prefer_const_constructors
+                        child: (Icon(Icons.battery_charging_full,
+                            size: 150,
+                            color:
+                                double.parse(slavevoldataDateShow[0].SVP) < 20
+                                    ? Colors.green
+                                    : Colors.red)),
+                      ),
+                      Text("SlavePercentage:" +
+                          "${double.parse(slavevoldataDateShow[0].SVP).toStringAsFixed(0)}"),
+                    ],
+                  ),
+          ],
+        ),
+        SizedBox(height: 20),
+        /*isLoadingMaster == true
             ? Container()
             : DataTable(
                 columnSpacing: 30,
                 columns: const <DataColumn>[
-                  DataColumn(
+                  /*DataColumn(
                     label: Expanded(
                       child: Text(
                         'Voltage',
@@ -515,7 +524,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                  ),
+                  ),*/
                   DataColumn(
                     label: Expanded(
                       child: Text(
@@ -534,95 +543,67 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                       ),
                     ),
                   ),
+                  /*DataColumn(
+                    label: Expanded(
+                      child: Text(
+                        'Difference',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),*/
+                ],
+                rows: getMasterTableValues(),
+              ),*/
+        /*isLoadingSlave == true
+            ? Container()
+            : DataTable(
+                columnSpacing: 30,
+                columns: const <DataColumn>[
+                  /*DataColumn(
+                    label: Expanded(
+                      child: Text(
+                        'Voltage',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),*/
                   DataColumn(
+                    label: Expanded(
+                      child: Text(
+                        'Time',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Expanded(
+                      child: Text(
+                        'Percentage',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  /*DataColumn(
                     label: Expanded(
                       child: Text(
                         'Difference',
                         style: TextStyle(fontStyle: FontStyle.italic),
                       ),
                     ),
-                  ),
+                  ),*/
                 ],
                 rows: getSlaveTableValues(),
-              ),
-        /*Container(
-          child: Text(
-              "Slave Battery Percentage: "
-              '${slaveBatterypercentage.toStringAsFixed(2)}',
-              style: TextStyle(fontSize: 20)),
-        ),
-        ElevatedButton(
-            onPressed: () async {
-              await databaseService.getDataFromDatabase();
-              log(voldataDateShow[1].mvp);
-            },
-            child: Text('Logtest')),
-        isloading == true
-            ? Container()
-            : DataTable(
-                columns: const <DataColumn>[
-                  DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'MV',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'MVP',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'SV',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'SVP',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                  ),
-                ],
-                rows: <DataRow>[
-                  DataRow(
-                    cells: <DataCell>[
-                      DataCell(Text(voldataDateShow[1].mv)),
-                      DataCell(Text(double.parse(voldataDateShow[1].mvp)
-                          .toStringAsFixed(2))),
-                      DataCell(Text(voldataDateShow[1].sv)),
-                      DataCell(Text(voldataDateShow[1].svp)),
-                    ],
-                  ),
-                ],
               ),*/
-        Container(
-          // height: 155,
-          height: 250,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: 330,
-            ),
-            Image.asset(
-              'assets/images/Miami_OH_JPG.jpg',
-              height: 60,
-              width: 60,
-            ),
-          ],
-        ),
+        ElevatedButton(
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => Detailspage()));
+            },
+            child: Text('Details...')),
       ],
     );
   }
@@ -735,6 +716,11 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: Image.asset(
+        'assets/images/Miami_OH_JPG.jpg',
+        height: 60,
+        width: 60,
       ),
     );
   }

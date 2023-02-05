@@ -78,10 +78,11 @@ class DatabaseService {
   }
 
   //::::::::::::::::::::::: Get latest data from "mastervoltageData" table ::::::::::::::::::::::
-  Future<List<MasterDBmodel>> getLatestDataFromMasterTable() async {
+  Future<List<MasterDBmodel>> getLatestDataFromMasterTable(
+      {String limit = "1"}) async {
     final db = await database;
-    final res = await db!
-        .rawQuery("SELECT * FROM mastervoltageData ORDER BY id DESC LIMIT 2");
+    final res = await db!.rawQuery(
+        "SELECT * FROM mastervoltageData ORDER BY id DESC LIMIT $limit");
 
     List<MasterDBmodel> list = res.isNotEmpty
         ? res.map((c) => MasterDBmodel.fromJson(c)).toList()
@@ -100,10 +101,11 @@ class DatabaseService {
   }
 
 //::::::::::::::::::::::: Get latest data from "slavevoltageData" table ::::::::::::::::::::::
-  Future<List<SlaveDBmodel>> getLatestDataFromSlaveTable() async {
+  Future<List<SlaveDBmodel>> getLatestDataFromSlaveTable(
+      {String limit = "1"}) async {
     final db = await database;
-    final res = await db!
-        .rawQuery("SELECT * FROM slavevoltageData ORDER BY id DESC LIMIT 2");
+    final res = await db!.rawQuery(
+        "SELECT * FROM slavevoltageData ORDER BY id DESC LIMIT $limit");
 
     List<SlaveDBmodel> list =
         res.isNotEmpty ? res.map((c) => SlaveDBmodel.fromJson(c)).toList() : [];
