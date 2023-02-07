@@ -396,7 +396,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
               textStyle: const TextStyle(fontSize: 20),
               //backgroundColor: Colors.black,
             ),
-            child: Text("PWM MODE"),
+            child: Text("PWM"),
             onPressed: () {
               sendHexValue(services: services, hexValue: 0x01);
               log('0x01 hex value successfully sent to master board');
@@ -409,7 +409,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
               textStyle: const TextStyle(fontSize: 20),
               //backgroundColor: Colors.black,
             ),
-            child: Text("LIGHT SENSOR MODE"),
+            child: Text("LIGHT SENSOR"),
             onPressed: () {
               sendHexValue(services: services, hexValue: 0x02);
               log('0x02 hex value successfully sent to master board');
@@ -438,76 +438,98 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
             thumbColor: Colors.deepPurple,
             label: '$_glassSliderValue'),
         // SizedBox(height: 20),
-        TextButton(
-          child: Text("MASTER VOLTAGE START"),
-          onPressed: () {
-            mastertimer = Timer.periodic(
-                Duration(
-                  seconds: 5,
-                ), (timer) {
-              log("Timer Working");
-              getMasterVoltage(widget.device);
-
-              //return timer.cancel();
-            });
-          },
-        ),
-        TextButton(
-          child: Text("SLAVE VOLTAGE START"),
-          onPressed: () {
-            slavetimer = Timer.periodic(
-                Duration(
-                  seconds: 5,
-                ), (timer) {
-              getSlaveVoltage(widget.device);
-              log("Timer Working");
-              //return timer.cancel();
-            });
-          },
-        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            isLoadingMaster == true
-                ? Container()
-                : Column(
-                    children: [
-                      Container(
-                        // width: 150,
-                        // height: 150,
-
-                        // ignore: prefer_const_constructors
-                        child: (Icon(Icons.battery_charging_full,
-                            size: 150,
-                            color:
-                                double.parse(mastervoldataDateShow[0].MVP) > 20
-                                    ? Colors.green
-                                    : Colors.red)),
-                      ),
-                      Text("MasterPercentage:" +
-                          "${double.parse(mastervoldataDateShow[0].MVP).toStringAsFixed(0)}"),
-                    ],
+            Column(
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Color(0xFF00425A),
+                    padding: const EdgeInsets.all(4.0),
+                    textStyle: const TextStyle(fontSize: 20),
+                    //backgroundColor: Colors.black,
                   ),
-            isLoadingSlave == true
-                ? Container()
-                : Column(
-                    children: [
-                      Container(
-                        // width: 150,
-                        // height: 150,
-
-                        // ignore: prefer_const_constructors
-                        child: (Icon(Icons.battery_charging_full,
-                            size: 150,
-                            color:
-                                double.parse(slavevoldataDateShow[0].SVP) < 20
-                                    ? Colors.green
-                                    : Colors.red)),
+                  child: Text("LEFT"), //slave voltage start
+                  onPressed: () {
+                    slavetimer = Timer.periodic(
+                        Duration(
+                          seconds: 60,
+                        ), (timer) {
+                      getSlaveVoltage(widget.device);
+                      log("Timer Working");
+                      //return timer.cancel();
+                    });
+                  },
+                ),
+                isLoadingSlave == true
+                    ? Container()
+                    : Column(
+                        children: [
+                          Container(
+                            child: (Icon(Icons.battery_charging_full,
+                                size: 150,
+                                color:
+                                    double.parse(slavevoldataDateShow[0].SVP) >
+                                            20
+                                        ? Colors.green
+                                        : Colors.red)),
+                          ),
+                          Text(
+                              "${double.parse(slavevoldataDateShow[0].SVP).toStringAsFixed(0)}" +
+                                  "%"),
+                        ],
                       ),
-                      Text("SlavePercentage:" +
-                          "${double.parse(slavevoldataDateShow[0].SVP).toStringAsFixed(0)}"),
-                    ],
+              ],
+            ),
+            Column(
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Color(0xFF00425A),
+                    padding: const EdgeInsets.all(4.0),
+                    textStyle: const TextStyle(fontSize: 20),
+                    //backgroundColor: Colors.black,
                   ),
+                  child: Text("RIGHT"), //master voltage start
+                  onPressed: () {
+                    mastertimer = Timer.periodic(
+                        Duration(
+                          seconds: 60,
+                        ), (timer) {
+                      log("Timer Working");
+                      getMasterVoltage(widget.device);
+
+                      //return timer.cancel();
+                    });
+                  },
+                ),
+                isLoadingMaster == true
+                    ? Container()
+                    : Column(
+                        children: [
+                          Container(
+                            // width: 150,
+                            // height: 150,
+
+                            // ignore: prefer_const_constructors
+                            child: (Icon(Icons.battery_charging_full,
+                                size: 150,
+                                color:
+                                    double.parse(mastervoldataDateShow[0].MVP) >
+                                            20
+                                        ? Colors.green
+                                        : Colors.red)),
+                          ),
+                          Text(
+                              "${double.parse(mastervoldataDateShow[0].MVP).toStringAsFixed(0)}" +
+                                  "%"),
+                        ],
+                      ),
+              ],
+            ),
           ],
         ),
         SizedBox(height: 20),
