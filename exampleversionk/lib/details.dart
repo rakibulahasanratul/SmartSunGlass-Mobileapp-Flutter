@@ -115,6 +115,24 @@ class _DetailspageState extends State<Detailspage> {
       appBar: AppBar(title: Text('Details Voltage Data')),
       body: Column(
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Image.asset(
+                'assets/images/AMIlogoWEBP.webp',
+                height: 60,
+                width: 60,
+              ),
+              SizedBox(
+                width: 270,
+              ),
+              Image.asset(
+                'assets/images/Air_Force_Research_Laboratory_PNG.png',
+                height: 60,
+                width: 60,
+              ),
+            ],
+          ),
           ElevatedButton(onPressed: () {}, child: Text('Master Data')),
           isLoadingMaster
               ? Center(
@@ -207,6 +225,11 @@ class _DetailspageState extends State<Detailspage> {
                   rows: getSlavedetails(),
                 ),
         ],
+      ),
+      floatingActionButton: Image.asset(
+        'assets/images/Miami_OH_JPG.jpg',
+        height: 60,
+        width: 60,
       ),
     );
   }
