@@ -208,39 +208,32 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       BluetoothService service4 = services[3]; // assigns service 4
       var service4Characteristics = service4
           .characteristics; // places all the characteristics of service 4 into a Characteristics list
-      var character2uuid = service4Characteristics[1].uuid;
-      print('character 2 service uuid: $character2uuid');
+      //var character3uuid = service4Characteristics[3].uuid;
+      //print('character 4 service uuid: $character3uuid');
 
       // this for-loop obtains the value of each characteristic and puts it into a list called value
       if (isReading == false) {
         for (BluetoothCharacteristic c in service4Characteristics) {
-          if (c.properties.read && c.uuid == character2uuid) {
-            //if (c.properties.read &&
-            //c.uuid == Guid('0000fff2-0000-1000-8000-00805f9b34fb')) {
+          if //(c.properties.read && c.uuid == character3uuid)
+              //Char3 is assigned for master voltage. Service id: 55441004-3322-1100-0000-000000000000
+              (c.properties.read &&
+                  c.uuid == Guid('55441004-3322-1100-0000-000000000000')) {
             isReading = true;
             List<int> value = await c.read(); // adds the c value to the list
             log('service4Characteristic: ${value}');
             service4ListIntermediate.add(value);
             log('master service4ListIntermediate list : ${service4ListIntermediate}');
-            /*if (value.length == 4) {
-              service4ListIntermediate.add(value[0]);
-              service4ListIntermediate.add(value[1]);
-              service4ListIntermediate.add(value[2]);
-              service4ListIntermediate.add(value[3]);
-              log('master service4ListIntermediate list : ${service4ListIntermediate}'); // adds the 'value' list to the temporary placeholde
-            }*/
           }
         }
       }
-
       // at this point, there is likely at least two lists in service4ListIntermediate, one of which does not have all the data we need
       service4List = service4ListIntermediate[
           0]; // obtains the first list from the list of lists. This list has all the data we need
       //service4List = ["A1", 05, 6, 2];
       print('master service4List: ${service4List}');
-      service4Characteristic1 = service4List.elementAt(2) * 256 +
+      service4Characteristic1 = service4List.elementAt(0) * 256 +
           (service4List.elementAt(
-              3)); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
+              1)); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
       print('master service4Characteristic1: ${service4Characteristic1}');
 
       // this if-statement checks if the service4Characteristic1 received a value or not, and returns the service4Characteristic1 value if it did
@@ -267,25 +260,23 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       BluetoothService service4 = services[3]; // assigns service 4
       var service4Characteristics = service4
           .characteristics; // places all the characteristics of service 4 into a Characteristics list
-      var character2uuid = service4Characteristics[1].uuid;
-      //var character2uuid = '55441002-3322-1100-0000-000000000000';
-      print('character 2 service uuid: $character2uuid');
+      //var character2uuid = service4Characteristics[1].uuid;
+
+      //var character2uuid = Guid 0000fff200001000800000805f9b34fb;
+
+      // print('character 2 service uuid: $character2uuid');
       // this for-loop obtains the value of each characteristic and puts it into a list called value
       if (isReading == false) {
         for (BluetoothCharacteristic c in service4Characteristics) {
-          if (c.properties.read && c.uuid == character2uuid) {
+          if //(c.properties.read && c.uuid == character2uuid)
+              //Char2 is assigned for peripheral voltage. Service id: 55441002-3322-1100-0000-000000000000
+              (c.properties.read &&
+                  c.uuid == Guid('55441002-3322-1100-0000-000000000000')) {
             //isReading = true;
             List<int> value = await c.read(); // adds the c value to the list
             log('service4Characteristic: ${value}');
             service4ListIntermediate.add(value);
             log('slave service4ListIntermediate list : ${service4ListIntermediate}');
-            /*if (value.length == 4) {
-              service4ListIntermediate.add(value[0]);
-              service4ListIntermediate.add(value[1]);
-              service4ListIntermediate.add(value[2]);
-              service4ListIntermediate.add(value[3]);
-              log('slave service4ListIntermediate list : ${service4ListIntermediate}'); // adds the 'value' list to the temporary placeholde
-            }*/
           }
         }
       }
@@ -533,93 +524,6 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
           ],
         ),
         SizedBox(height: 20),
-        /*isLoadingMaster == true
-            ? Container()
-            : DataTable(
-                columnSpacing: 30,
-                columns: const <DataColumn>[
-                  /*DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'Voltage',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),*/
-                  DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'Time',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'Percentage',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  /*DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'Difference',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),*/
-                ],
-                rows: getMasterTableValues(),
-              ),*/
-        /*isLoadingSlave == true
-            ? Container()
-            : DataTable(
-                columnSpacing: 30,
-                columns: const <DataColumn>[
-                  /*DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'Voltage',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),*/
-                  DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'Time',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'Percentage',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  /*DataColumn(
-                    label: Expanded(
-                      child: Text(
-                        'Difference',
-                        style: TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ),
-                  ),*/
-                ],
-                rows: getSlaveTableValues(),
-              ),*/
         ElevatedButton(
             onPressed: () {
               Navigator.push(context,
