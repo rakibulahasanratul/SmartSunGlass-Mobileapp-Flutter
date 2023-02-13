@@ -123,17 +123,17 @@ class _DetailspageState extends State<Detailspage> {
                 height: 60,
                 width: 60,
               ),
-              SizedBox(
+              /*SizedBox(
                 width: 270,
               ),
               Image.asset(
                 'assets/images/Air_Force_Research_Laboratory_PNG.png',
                 height: 60,
                 width: 60,
-              ),
+              ),*/
             ],
           ),
-          ElevatedButton(onPressed: () {}, child: Text('Master Data')),
+          ElevatedButton(onPressed: () {}, child: Text('RIGHT')),
           isLoadingMaster
               ? Center(
                   child: CircularProgressIndicator(),
@@ -180,7 +180,7 @@ class _DetailspageState extends State<Detailspage> {
                   ],
                   rows: getMasterdetails(),
                 ),
-          ElevatedButton(onPressed: () {}, child: Text('Slave Data')),
+          ElevatedButton(onPressed: () {}, child: Text('LEFT')),
           isLoadingSlave == true
               ? Container()
               : DataTable(

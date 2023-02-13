@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 
+import 'battery_charge_painter.dart';
 import 'db/model/master_table_model.dart'; //master database model initialize
 import 'db/model/slave_table_model.dart'; //slave database model initialize
 import 'db/service/database_service.dart';
@@ -208,16 +209,17 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       BluetoothService service4 = services[3]; // assigns service 4
       var service4Characteristics = service4
           .characteristics; // places all the characteristics of service 4 into a Characteristics list
-      //var character3uuid = service4Characteristics[3].uuid;
+      var character3uuid = service4Characteristics[1].uuid;
       //print('character 4 service uuid: $character3uuid');
 
       // this for-loop obtains the value of each characteristic and puts it into a list called value
       if (isReading == false) {
         for (BluetoothCharacteristic c in service4Characteristics) {
-          if //(c.properties.read && c.uuid == character3uuid)
-              //Char3 is assigned for master voltage. Service id: 55441004-3322-1100-0000-000000000000
-              (c.properties.read &&
-                  c.uuid == Guid('55441004-3322-1100-0000-000000000000')) {
+          if (c.properties.read && c.uuid == character3uuid)
+          //Char3 is assigned for master voltage. Service id: 55441004-3322-1100-0000-000000000000
+          /*(c.properties.read &&
+                  c.uuid == Guid('55441003-3322-1100-0000-000000000000'))*/
+          {
             isReading = true;
             List<int> value = await c.read(); // adds the c value to the list
             log('service4Characteristic: ${value}');
@@ -231,9 +233,9 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
           0]; // obtains the first list from the list of lists. This list has all the data we need
       //service4List = ["A1", 05, 6, 2];
       print('master service4List: ${service4List}');
-      service4Characteristic1 = service4List.elementAt(0) * 256 +
+      service4Characteristic1 = service4List.elementAt(2) * 256 +
           (service4List.elementAt(
-              1)); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
+              3)); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
       print('master service4Characteristic1: ${service4Characteristic1}');
 
       // this if-statement checks if the service4Characteristic1 received a value or not, and returns the service4Characteristic1 value if it did
@@ -260,18 +262,16 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       BluetoothService service4 = services[3]; // assigns service 4
       var service4Characteristics = service4
           .characteristics; // places all the characteristics of service 4 into a Characteristics list
-      //var character2uuid = service4Characteristics[1].uuid;
-
-      //var character2uuid = Guid 0000fff200001000800000805f9b34fb;
-
-      // print('character 2 service uuid: $character2uuid');
+      var character2uuid = service4Characteristics[1].uuid;
+      print('character 2 service uuid: $character2uuid');
       // this for-loop obtains the value of each characteristic and puts it into a list called value
       if (isReading == false) {
         for (BluetoothCharacteristic c in service4Characteristics) {
-          if //(c.properties.read && c.uuid == character2uuid)
-              //Char2 is assigned for peripheral voltage. Service id: 55441002-3322-1100-0000-000000000000
-              (c.properties.read &&
-                  c.uuid == Guid('55441002-3322-1100-0000-000000000000')) {
+          if (c.properties.read && c.uuid == character2uuid)
+          //Char2 is assigned for peripheral voltage. Service id: 55441002-3322-1100-0000-000000000000
+          // (c.properties.read &&
+          //     c.uuid == Guid('55441002-3322-1100-0000-000000000000'))
+          {
             //isReading = true;
             List<int> value = await c.read(); // adds the c value to the list
             log('service4Characteristic: ${value}');
@@ -371,7 +371,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       if (services.length >= 4) {
         BluetoothService service4 = services[3];
         if (service4.characteristics.isNotEmpty) {
-          service4.characteristics[2].write([hexValue]);
+          service4.characteristics[3].write([hexValue]);
         }
       }
     });
@@ -442,23 +442,32 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                     textStyle: const TextStyle(fontSize: 20),
                     //backgroundColor: Colors.black,
                   ),
-                  child: Text("LEFT"), //slave voltage start
+                  child: Text("Battery"), //slave voltage start
                   onPressed: () {
                     slavetimer = Timer.periodic(
                         Duration(
                           seconds: 60,
                         ), (timer) {
                       getSlaveVoltage(widget.device);
-                      log("Timer Working");
+                      log("Slave Timer Working");
+                      //return timer.cancel();
+                    });
+                    mastertimer = Timer.periodic(
+                        Duration(
+                          seconds: 61,
+                        ), (timer) {
+                      log("Master Timer Working");
+                      getMasterVoltage(widget.device);
+
                       //return timer.cancel();
                     });
                   },
                 ),
-                isLoadingSlave == true
+                /*isLoadingSlave == true
                     ? Container()
                     : Column(
                         children: [
-                          Container(
+                          /*Container(
                             child: (Icon(Icons.battery_charging_full,
                                 size: 150,
                                 color:
@@ -466,17 +475,33 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                                             20
                                         ? Colors.green
                                         : Colors.red)),
+                          ),*/
+                          RotatedBox(
+                            quarterTurns: -1,
+                            child: CustomPaint(
+                              size: const Size(150, 150),
+                              painter: CustomBatteryPainter(
+                                charge:
+                                    double.parse(slavevoldataDateShow[0].SVP) <
+                                            0
+                                        ? 0
+                                        : double.parse(
+                                                slavevoldataDateShow[0].SVP) +
+                                            250,
+                                batteryColor: Colors.green,
+                              ),
+                            ),
                           ),
                           Text(
                               "${double.parse(slavevoldataDateShow[0].SVP).toStringAsFixed(0)}" +
                                   "%"),
                         ],
-                      ),
+                      ),*/
               ],
             ),
-            Column(
+            /*Column(
               children: [
-                ElevatedButton(
+                /*ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: Color(0xFF00425A),
@@ -488,7 +513,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                   onPressed: () {
                     mastertimer = Timer.periodic(
                         Duration(
-                          seconds: 60,
+                          seconds: 5,
                         ), (timer) {
                       log("Timer Working");
                       getMasterVoltage(widget.device);
@@ -496,8 +521,8 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                       //return timer.cancel();
                     });
                   },
-                ),
-                isLoadingMaster == true
+                ),*/
+                /*isLoadingMaster == true
                     ? Container()
                     : Column(
                         children: [
@@ -518,9 +543,9 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                               "${double.parse(mastervoldataDateShow[0].MVP).toStringAsFixed(0)}" +
                                   "%"),
                         ],
-                      ),
+                      ),*/
               ],
-            ),
+            ),*/
           ],
         ),
         SizedBox(height: 20),
@@ -577,21 +602,95 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
         child: Column(
           children: <Widget>[
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Image.asset(
                   'assets/images/AMIlogoWEBP.webp',
                   height: 60,
                   width: 60,
                 ),
-                SizedBox(
+                //Spacer(),
+                Row(
+                  children: [
+                    isLoadingSlave == true
+                        ? Container()
+                        : Column(
+                            children: [
+                              /*Container4
+                            child: (Icon(Icons.battery_charging_full,
+                                size: 150,
+                                color:
+                                    double.parse(slavevoldataDateShow[0].SVP) >
+                                            20
+                                        ? Colors.green
+                                        : Colors.red)),
+                          ),*/
+                              RotatedBox(
+                                quarterTurns: -1,
+                                child: CustomPaint(
+                                  size: const Size(30, 30),
+                                  painter: CustomBatteryPainter(
+                                    charge: double.parse(
+                                                slavevoldataDateShow[0].SVP) <
+                                            0
+                                        ? 0
+                                        : double.parse(
+                                            slavevoldataDateShow[0].SVP),
+                                    batteryColor: Colors.green,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                "${double.parse(slavevoldataDateShow[0].SVP).toStringAsFixed(0)}" +
+                                    "%",
+                                style: TextStyle(fontSize: 6),
+                              ),
+                            ],
+                          ),
+                    isLoadingMaster == true
+                        ? Container()
+                        : Column(
+                            children: [
+                              /*Container(
+                            child: (Icon(Icons.battery_charging_full,
+                                size: 150,
+                                color:
+                                    double.parse(slavevoldataDateShow[0].SVP) >
+                                            20
+                                        ? Colors.green
+                                        : Colors.red)),
+                          ),*/
+                              RotatedBox(
+                                quarterTurns: -1,
+                                child: CustomPaint(
+                                  size: const Size(30, 30),
+                                  painter: CustomBatteryPainter(
+                                    charge: double.parse(
+                                                mastervoldataDateShow[0].MVP) <
+                                            0
+                                        ? 0
+                                        : double.parse(
+                                            mastervoldataDateShow[0].MVP),
+                                    batteryColor: Colors.green,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                  "${double.parse(mastervoldataDateShow[0].MVP).toStringAsFixed(0)}" +
+                                      "%",
+                                  style: TextStyle(fontSize: 6)),
+                            ],
+                          ),
+                  ],
+                )
+                /*SizedBox(
                   width: 270,
                 ),
                 Image.asset(
                   'assets/images/Air_Force_Research_Laboratory_PNG.png',
                   height: 60,
                   width: 60,
-                ),
+                ),*/
               ],
             ),
             StreamBuilder<BluetoothDeviceState>(
