@@ -100,6 +100,12 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
   }
 
   @override
+  void initState() {
+    getBatteryVoltage();
+    super.initState();
+  }
+
+  @override
   void dispose() {
     super.dispose();
     mastertimer!.cancel(); //master timer cancellation once app not in use
@@ -233,9 +239,9 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
           0]; // obtains the first list from the list of lists. This list has all the data we need
       //service4List = ["A1", 05, 6, 2];
       print('master service4List: ${service4List}');
-      service4Characteristic1 = service4List.elementAt(2) * 256 +
+      service4Characteristic1 = service4List.elementAt(0) * 256 +
           (service4List.elementAt(
-              3)); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
+              1)); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
       print('master service4Characteristic1: ${service4Characteristic1}');
 
       // this if-statement checks if the service4Characteristic1 received a value or not, and returns the service4Characteristic1 value if it did
@@ -335,7 +341,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       int _pvcharacter2Value = await getpvcharacter2Value(
           services); // assigns the returned master voltage value to a variable
       print('_pvcharacter2Value = ${_pvcharacter2Value + 100}');
-      var pvcv = _pvcharacter2Value /
+      var pvcv = (_pvcharacter2Value + 100) /
           1000; // converts returned future hexadecimal data type method to a double
       //var pvcv = _pvcharacter2Value;
       print('pvcv = ${pvcv}');
@@ -349,7 +355,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       log('Slave Battery Percentage: $slaveBatterypercentage');
       double difference = await getslaveDifferenceValue(pvcv);
       await databaseService.addToSlaveDatabase(
-        pvcv.toString(),
+        pvcv.toStringAsFixed(2),
         getCurrentDateTime(),
         slaveBatterypercentage.toString(),
         difference.toString(),
@@ -360,6 +366,26 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     } catch (err) {
       print('Caught Error: $err');
     }
+  }
+
+  getBatteryVoltage() {
+    slavetimer = Timer.periodic(
+        Duration(
+          seconds: 5,
+        ), (timer) {
+      getSlaveVoltage(widget.device);
+      log("Slave Timer Working");
+      //return timer.cancel();
+    });
+    mastertimer = Timer.periodic(
+        Duration(
+          seconds: 10,
+        ), (timer) {
+      log("Master Timer Working");
+      getMasterVoltage(widget.device);
+
+      //return timer.cancel();
+    });
   }
 
 // Method to send hex value to Char3 for PWM or Light Sensor control
@@ -434,7 +460,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
           children: [
             Column(
               children: [
-                ElevatedButton(
+                /*ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: Color(0xFF00425A),
@@ -446,7 +472,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                   onPressed: () {
                     slavetimer = Timer.periodic(
                         Duration(
-                          seconds: 60,
+                          seconds: 5,
                         ), (timer) {
                       getSlaveVoltage(widget.device);
                       log("Slave Timer Working");
@@ -454,7 +480,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                     });
                     mastertimer = Timer.periodic(
                         Duration(
-                          seconds: 61,
+                          seconds: 65,
                         ), (timer) {
                       log("Master Timer Working");
                       getMasterVoltage(widget.device);
@@ -462,8 +488,8 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                       //return timer.cancel();
                     });
                   },
-                ),
-                /*isLoadingSlave == true
+                ),*/
+                /* isLoadingSlave == true
                     ? Container()
                     : Column(
                         children: [
@@ -625,26 +651,34 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                                         ? Colors.green
                                         : Colors.red)),
                           ),*/
+                              Text(
+                                "L",
+                                style: TextStyle(
+                                    fontSize: 6, fontWeight: FontWeight.bold),
+                              ),
                               RotatedBox(
                                 quarterTurns: -1,
                                 child: CustomPaint(
-                                  size: const Size(30, 30),
+                                  size: const Size(40, 40),
                                   painter: CustomBatteryPainter(
                                     charge: double.parse(
-                                                slavevoldataDateShow[0].SVP) <
-                                            0
-                                        ? 0
-                                        : double.parse(
-                                            slavevoldataDateShow[0].SVP),
-                                    batteryColor: Colors.green,
+                                        slavevoldataDateShow[0].SVP),
+                                    batteryColor: (double.parse(
+                                                    slavevoldataDateShow[0]
+                                                        .SVP) <
+                                                20 &&
+                                            double.parse(slavevoldataDateShow[0]
+                                                    .SVP) >=
+                                                0)
+                                        ? Colors.red
+                                        : Colors.green,
                                   ),
                                 ),
                               ),
                               Text(
-                                "${double.parse(slavevoldataDateShow[0].SVP).toStringAsFixed(0)}" +
-                                    "%",
-                                style: TextStyle(fontSize: 6),
-                              ),
+                                  "${double.parse(slavevoldataDateShow[0].SVP).toStringAsFixed(0)}" +
+                                      "%",
+                                  style: TextStyle(fontSize: 6)),
                             ],
                           ),
                     isLoadingMaster == true
@@ -660,18 +694,28 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                                         ? Colors.green
                                         : Colors.red)),
                           ),*/
+                              Text(
+                                "R",
+                                style: TextStyle(
+                                    fontSize: 6, fontWeight: FontWeight.bold),
+                              ),
                               RotatedBox(
                                 quarterTurns: -1,
                                 child: CustomPaint(
-                                  size: const Size(30, 30),
+                                  size: const Size(40, 40),
                                   painter: CustomBatteryPainter(
                                     charge: double.parse(
-                                                mastervoldataDateShow[0].MVP) <
-                                            0
-                                        ? 0
-                                        : double.parse(
-                                            mastervoldataDateShow[0].MVP),
-                                    batteryColor: Colors.green,
+                                        mastervoldataDateShow[0].MVP),
+                                    batteryColor: (double.parse(
+                                                    mastervoldataDateShow[0]
+                                                        .MVP) <
+                                                20 &&
+                                            double.parse(
+                                                    mastervoldataDateShow[0]
+                                                        .MVP) >=
+                                                0)
+                                        ? Colors.red
+                                        : Colors.green,
                                   ),
                                 ),
                               ),
