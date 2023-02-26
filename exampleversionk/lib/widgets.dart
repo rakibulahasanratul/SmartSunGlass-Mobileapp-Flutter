@@ -99,6 +99,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     return difference;
   }
 
+//battery voltage initiation in the inistate so that voltage update happen instantly when page load
   @override
   void initState() {
     getBatteryVoltage();
@@ -112,7 +113,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     slavetimer!.cancel(); //slave timer cancellation once app not in use
   }
 
-//This function
+/*This function
   List<DataRow> getMasterTableValues() {
     List<DataRow> rows = [];
     for (var i = 0; i < mastervoldataDateShow.length; i++) {
@@ -140,9 +141,9 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       );
     }
     return rows;
-  }
+  }*/
 
-  //Newly added
+  /*Newly added
   List<DataRow> getSlaveTableValues() {
     List<DataRow> rows = [];
     for (var i = 0; i < slavevoldataDateShow.length; i++) {
@@ -170,7 +171,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       );
     }
     return rows;
-  }
+  }*/
 
   String getCurrentDateTime() {
     var now = DateTime.now();
@@ -183,7 +184,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     return formattedDate;
   }
 
-  String getCharacter4Value(List<BluetoothService> services) {
+  /*String getCharacter4Value(List<BluetoothService> services) {
     print("😊services: ${services.toString()}");
     if (services.length >= 4) {
       BluetoothService service4 = services[3];
@@ -197,7 +198,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       return "⚠️service4 is empty!";
     }
     return "⚠️service4 - character4 is empty!";
-  }
+  }*/
 
 //Method to get master voltage parameter from the prototype
 
@@ -254,6 +255,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     return -1;
   }
 
+//Method to get slave voltage parameter from the prototype
   Future<int> getpvcharacter2Value(List<BluetoothService> services) async {
     List service4ListIntermediate =
         []; // create list to temporarily hold service4List data
@@ -280,7 +282,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
           {
             //isReading = true;
             List<int> value = await c.read(); // adds the c value to the list
-            log('service4Characteristic: ${value}');
+            log('service4Characteristic: ${value} ${getCurrentDateTime()}');
             service4ListIntermediate.add(value);
             log('slave service4ListIntermediate list : ${service4ListIntermediate}');
           }
@@ -303,6 +305,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     return -1;
   }
 
+  //Method to convert collected parament value into battery percentage and load percentage,time, voltage value to master table
   getMasterVoltage(BluetoothDevice device) async {
     List<BluetoothService> services = await device.discoverServices();
     try {
@@ -335,6 +338,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     }
   }
 
+//Method to convert collected parament value into battery percentage and load percentage,time, voltage value to slave table
   getSlaveVoltage(BluetoothDevice device) async {
     List<BluetoothService> services = await device.discoverServices();
     try {
@@ -368,10 +372,11 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     }
   }
 
+//method to have slave and master table timee
   getBatteryVoltage() {
     slavetimer = Timer.periodic(
         Duration(
-          seconds: 5,
+          seconds: 20,
         ), (timer) {
       getSlaveVoltage(widget.device);
       log("Slave Timer Working");
@@ -379,7 +384,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     });
     mastertimer = Timer.periodic(
         Duration(
-          seconds: 10,
+          seconds: 25,
         ), (timer) {
       log("Master Timer Working");
       getMasterVoltage(widget.device);
@@ -393,14 +398,13 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     required List<BluetoothService> services,
     required int hexValue,
   }) {
-    setState(() {
-      if (services.length >= 4) {
-        BluetoothService service4 = services[3];
-        if (service4.characteristics.isNotEmpty) {
-          service4.characteristics[3].write([hexValue]);
-        }
+    if (services.length >= 4) {
+      BluetoothService service4 = services[3];
+      if (service4.characteristics.isNotEmpty) {
+        service4.characteristics[2].write([hexValue]);
+        log('service4.characteristics[2]: ${service4.characteristics[2].uuid}');
       }
-    });
+    }
   }
 
   Widget _buildServiceTiles(List<BluetoothService> services) {
@@ -419,25 +423,42 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
               log('0x01 hex value successfully sent to master board');
             }),
         SizedBox(height: 20),
-        ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.all(4.0),
-              textStyle: const TextStyle(fontSize: 20),
-              //backgroundColor: Colors.black,
-            ),
-            child: Text("LIGHT SENSOR"),
-            onPressed: () {
-              sendHexValue(services: services, hexValue: 0x02);
-              log('0x02 hex value successfully sent to master board');
-            }),
-        SizedBox(height: 20),
         Container(
           child: Text("Glass Controller", style: TextStyle(fontSize: 20)),
         ),
+        /*Column(
+          children: [
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.all(4.0),
+                  textStyle: const TextStyle(fontSize: 16),
+                  //backgroundColor: Colors.black,
+                ),
+                child: Text("Clear"),
+                onPressed: () {
+                  sendPWMvalue(services: services, pwmvalue: 0x1E);
+                  log('0x0F hex value successfully sent to master board');
+                }),
+            SizedBox(width: 279),
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.all(4.0),
+                  textStyle: const TextStyle(fontSize: 16),
+                  //backgroundColor: Colors.black,
+                ),
+                child: Text("Dark"),
+                onPressed: () {
+                  sendPWMvalue(services: services, pwmvalue: 0x80);
+                  log('0x80 hex value successfully sent to master board');
+                }),
+          ],
+        ),*/
         Slider(
             value: _glassSliderValue,
-            onChanged: (double value) {
+            onChanged: (value) {},
+            onChangeEnd: (double value) {
               setState(() {
                 _glassSliderValue = value;
                 log('Glass Controller value changed: $value');
@@ -454,6 +475,20 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
             divisions: 128,
             thumbColor: Colors.deepPurple,
             label: '$_glassSliderValue'),
+        SizedBox(height: 20),
+        ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.all(4.0),
+              textStyle: const TextStyle(fontSize: 20),
+              //backgroundColor: Colors.black,
+            ),
+            child: Text("LIGHT SENSOR"),
+            onPressed: () {
+              sendHexValue(services: services, hexValue: 0x02);
+              log('0x02 hex value successfully sent to master board');
+            }),
+        SizedBox(height: 20),
         // SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -654,7 +689,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                               Text(
                                 "L",
                                 style: TextStyle(
-                                    fontSize: 6, fontWeight: FontWeight.bold),
+                                    fontSize: 8, fontWeight: FontWeight.bold),
                               ),
                               RotatedBox(
                                 quarterTurns: -1,
@@ -666,7 +701,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                                     batteryColor: (double.parse(
                                                     slavevoldataDateShow[0]
                                                         .SVP) <
-                                                20 &&
+                                                15 &&
                                             double.parse(slavevoldataDateShow[0]
                                                     .SVP) >=
                                                 0)
@@ -697,7 +732,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                               Text(
                                 "R",
                                 style: TextStyle(
-                                    fontSize: 6, fontWeight: FontWeight.bold),
+                                    fontSize: 8, fontWeight: FontWeight.bold),
                               ),
                               RotatedBox(
                                 quarterTurns: -1,
@@ -709,7 +744,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                                     batteryColor: (double.parse(
                                                     mastervoldataDateShow[0]
                                                         .MVP) <
-                                                20 &&
+                                                15 &&
                                             double.parse(
                                                     mastervoldataDateShow[0]
                                                         .MVP) >=
