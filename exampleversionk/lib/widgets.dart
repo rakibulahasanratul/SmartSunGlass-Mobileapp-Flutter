@@ -222,11 +222,10 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       // this for-loop obtains the value of each characteristic and puts it into a list called value
       if (isReading == false) {
         for (BluetoothCharacteristic c in service4Characteristics) {
-          if (c.properties.read && c.uuid == character3uuid)
-          //Char3 is assigned for master voltage. Service id: 55441004-3322-1100-0000-000000000000
-          /*(c.properties.read &&
-                  c.uuid == Guid('55441003-3322-1100-0000-000000000000'))*/
-          {
+          if //(c.properties.read && c.uuid == character3uuid)
+              //Char3 is assigned for master voltage. Service id: 55441004-3322-1100-0000-000000000000
+              (c.properties.read &&
+                  c.uuid == Guid('55441003-3322-1100-0000-000000000000')) {
             isReading = true;
             List<int> value = await c.read(); // adds the c value to the list
             log('service4Characteristic: ${value}');
@@ -275,11 +274,10 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       // this for-loop obtains the value of each characteristic and puts it into a list called value
       if (isReading == false) {
         for (BluetoothCharacteristic c in service4Characteristics) {
-          if (c.properties.read && c.uuid == character2uuid)
-          //Char2 is assigned for peripheral voltage. Service id: 55441002-3322-1100-0000-000000000000
-          // (c.properties.read &&
-          //     c.uuid == Guid('55441002-3322-1100-0000-000000000000'))
-          {
+          if //(c.properties.read && c.uuid == character2uuid)
+              //Char2 is assigned for peripheral voltage. Service id: 55441002-3322-1100-0000-000000000000
+              (c.properties.read &&
+                  c.uuid == Guid('55441002-3322-1100-0000-000000000000')) {
             //isReading = true;
             List<int> value = await c.read(); // adds the c value to the list
             log('service4Characteristic: ${value} ${getCurrentDateTime()}');
@@ -687,7 +685,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                                         : Colors.red)),
                           ),*/
                               Text(
-                                "L",
+                                "R",
                                 style: TextStyle(
                                     fontSize: 8, fontWeight: FontWeight.bold),
                               ),
@@ -730,7 +728,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                                         : Colors.red)),
                           ),*/
                               Text(
-                                "R",
+                                "L",
                                 style: TextStyle(
                                     fontSize: 8, fontWeight: FontWeight.bold),
                               ),
