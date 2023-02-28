@@ -9,7 +9,14 @@ import 'db/model/master_table_model.dart'; //master database model initialize
 import 'db/model/slave_table_model.dart'; //slave database model initialize
 import 'db/service/database_service.dart';
 import 'details.dart'; //database service initilize include
-//import 'package:battery_plus/battery_plus.dart'; //Battey widget package
+
+//**************characteristic service details start****************************
+//char1_PWM:55441001-3322-1100-0000-000000000000
+//char2_Peripheral_Voltage:55441002-3322-1100-0000-000000000000
+//char3_Central_Voltage:55441003-3322-1100-0000-000000000000
+//char4_Control_Code:55441004-3322-1100-0000-000000000000
+//char5_Light_Sensor_Value:55441005-3322-1100-0000-000000000000
+//**************characteristic service details end88****************************
 
 //modificationg
 class DeviceScreen extends StatefulWidget {
@@ -216,14 +223,14 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       BluetoothService service4 = services[3]; // assigns service 4
       var service4Characteristics = service4
           .characteristics; // places all the characteristics of service 4 into a Characteristics list
-      var character3uuid = service4Characteristics[1].uuid;
+      //var character3uuid = service4Characteristics[1].uuid;
       //print('character 4 service uuid: $character3uuid');
 
       // this for-loop obtains the value of each characteristic and puts it into a list called value
       if (isReading == false) {
         for (BluetoothCharacteristic c in service4Characteristics) {
           if //(c.properties.read && c.uuid == character3uuid)
-              //Char3 is assigned for master voltage. Service id: 55441004-3322-1100-0000-000000000000
+              //Char3 is assigned for master voltage. Service id: 55441003-3322-1100-0000-000000000000
               (c.properties.read &&
                   c.uuid == Guid('55441003-3322-1100-0000-000000000000')) {
             isReading = true;
@@ -374,7 +381,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
   getBatteryVoltage() {
     slavetimer = Timer.periodic(
         Duration(
-          seconds: 20,
+          seconds: 60,
         ), (timer) {
       getSlaveVoltage(widget.device);
       log("Slave Timer Working");
@@ -382,7 +389,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     });
     mastertimer = Timer.periodic(
         Duration(
-          seconds: 25,
+          seconds: 65,
         ), (timer) {
       log("Master Timer Working");
       getMasterVoltage(widget.device);
@@ -400,7 +407,8 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       BluetoothService service4 = services[3];
       if (service4.characteristics.isNotEmpty) {
         service4.characteristics[2].write([hexValue]);
-        log('service4.characteristics[2]: ${service4.characteristics[2].uuid}');
+        //Service id for control code characteristic '55441004-3322-1100-0000-000000000000'
+        log('Cha4 service UUID: ${service4.characteristics[2].uuid}');
       }
     }
   }
@@ -409,6 +417,22 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     return Column(
       children: [
         ElevatedButton(
+          child: Text('PWM', style: TextStyle(fontSize: 20)),
+          onPressed: () {
+            sendHexValue(services: services, hexValue: 0x01);
+            log('0x01 hex value successfully sent to central');
+          },
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.resolveWith<Color>(
+              (Set<MaterialState> states) {
+                if (states.contains(MaterialState.pressed)) return Colors.green;
+                return Colors.blue;
+              },
+            ),
+          ),
+        ),
+        SizedBox(height: 30),
+        /*ElevatedButton(
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.white,
               padding: const EdgeInsets.all(4.0),
@@ -418,44 +442,16 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
             child: Text("PWM"),
             onPressed: () {
               sendHexValue(services: services, hexValue: 0x01);
-              log('0x01 hex value successfully sent to master board');
+              log('0x01 hex value successfully sent to central');
             }),
-        SizedBox(height: 20),
+        SizedBox(height: 20),*/
         Container(
           child: Text("Glass Controller", style: TextStyle(fontSize: 20)),
         ),
-        /*Column(
-          children: [
-            ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.all(4.0),
-                  textStyle: const TextStyle(fontSize: 16),
-                  //backgroundColor: Colors.black,
-                ),
-                child: Text("Clear"),
-                onPressed: () {
-                  sendPWMvalue(services: services, pwmvalue: 0x1E);
-                  log('0x0F hex value successfully sent to master board');
-                }),
-            SizedBox(width: 279),
-            ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.all(4.0),
-                  textStyle: const TextStyle(fontSize: 16),
-                  //backgroundColor: Colors.black,
-                ),
-                child: Text("Dark"),
-                onPressed: () {
-                  sendPWMvalue(services: services, pwmvalue: 0x80);
-                  log('0x80 hex value successfully sent to master board');
-                }),
-          ],
-        ),*/
         Slider(
             value: _glassSliderValue,
-            onChanged: (value) {},
+            onChanged:
+                (value) {}, //Not in use but its mandatory field of slider widget.
             onChangeEnd: (double value) {
               setState(() {
                 _glassSliderValue = value;
@@ -464,6 +460,8 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                   BluetoothService service4 = services[3];
                   if (service4.characteristics.isNotEmpty) {
                     service4.characteristics[0].write([value.toInt()]);
+                    //Service id for control code characteristic '55441001-3322-1100-0000-000000000000'
+                    log('Char1 service UUID: ${service4.characteristics[0].uuid}');
                   }
                 }
               });
@@ -473,8 +471,23 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
             divisions: 128,
             thumbColor: Colors.deepPurple,
             label: '$_glassSliderValue'),
-        SizedBox(height: 20),
+        SizedBox(height: 30),
         ElevatedButton(
+          child: Text('LIGHT SENSOR', style: TextStyle(fontSize: 20)),
+          onPressed: () {
+            sendHexValue(services: services, hexValue: 0x02);
+            log('0x02 hex value successfully sent to central');
+          },
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.resolveWith<Color>(
+              (Set<MaterialState> states) {
+                if (states.contains(MaterialState.pressed)) return Colors.green;
+                return Colors.blue;
+              },
+            ),
+          ),
+        ),
+        /*ElevatedButton(
             style: ElevatedButton.styleFrom(
               foregroundColor: Colors.white,
               padding: const EdgeInsets.all(4.0),
@@ -484,11 +497,11 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
             child: Text("LIGHT SENSOR"),
             onPressed: () {
               sendHexValue(services: services, hexValue: 0x02);
-              log('0x02 hex value successfully sent to master board');
-            }),
-        SizedBox(height: 20),
+              log('0x02 hex value successfully sent to central');
+            }),*/
+        //SizedBox(height: 20),
         // SizedBox(height: 20),
-        Row(
+        /*Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Column(
@@ -606,14 +619,17 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
               ],
             ),*/
           ],
-        ),
-        SizedBox(height: 20),
+        ),*/
+        SizedBox(height: 100),
         ElevatedButton(
             onPressed: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => Detailspage()));
             },
-            child: Text('Details...')),
+            child: Text(
+              'Details...',
+              style: TextStyle(fontSize: 10),
+            )),
       ],
     );
   }
@@ -695,7 +711,11 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                                   size: const Size(40, 40),
                                   painter: CustomBatteryPainter(
                                     charge: double.parse(
-                                        slavevoldataDateShow[0].SVP),
+                                                slavevoldataDateShow[0].SVP) <=
+                                            0
+                                        ? 0
+                                        : double.parse(
+                                            slavevoldataDateShow[0].SVP),
                                     batteryColor: (double.parse(
                                                     slavevoldataDateShow[0]
                                                         .SVP) <
@@ -738,7 +758,11 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                                   size: const Size(40, 40),
                                   painter: CustomBatteryPainter(
                                     charge: double.parse(
-                                        mastervoldataDateShow[0].MVP),
+                                                mastervoldataDateShow[0].MVP) <=
+                                            0
+                                        ? 0
+                                        : double.parse(
+                                            mastervoldataDateShow[0].MVP),
                                     batteryColor: (double.parse(
                                                     mastervoldataDateShow[0]
                                                         .MVP) <
