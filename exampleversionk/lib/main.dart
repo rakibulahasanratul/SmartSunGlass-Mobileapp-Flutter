@@ -1,12 +1,9 @@
+//This dart file is the main entry point of the flutter project.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
-//import 'package:flutter_blue_example/widgets.dart';
 import 'widgets.dart';
-
 import 'db/service/database_service.dart'; //DB service package initialize
-//import 'package:flutter_blue_example/widgets.dart';
-//import 'package:flutter_blue_example/batterywidget.dart';
-//New import
 
 void main() {
   runApp(FlutterBlueApp());
@@ -24,9 +21,9 @@ class _FlutterBlueAppState extends State<FlutterBlueApp> {
   void initState() {
     databaseService.initDB().then((value) {
       databaseService
-          .deleteMasterVoltageData(); //master data table delete once quits from app
+          .deleteCentralVoltageData(); //central data table delete once app is close
       databaseService
-          .deleteSlaveVoltageData(); //slave data table delete once quits from app
+          .deletePeripheralVoltageData(); //peripheral data table delete once app is close
     });
     super.initState();
   }
