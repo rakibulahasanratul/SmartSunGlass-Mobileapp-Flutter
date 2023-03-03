@@ -1,3 +1,13 @@
+// This dart file contains the visualization details of battery
+
+//************************Main Idea Start************************//
+// The idea is to create four rectengular box using flutter canvas
+// and rect function. Out of four rectengular box three will have
+// fix height and width and create the base of battery box.  The
+// last rectengular box width is changing w.r.t to the battery
+// percentage value of cental and peripheral table respectively.
+//************************Main Idea End************************//
+
 import 'package:flutter/material.dart';
 
 class CustomBatteryPainter extends CustomPainter {
@@ -8,7 +18,6 @@ class CustomBatteryPainter extends CustomPainter {
 
   final double charge;
   final Color batteryColor;
-
   final double batteryShellWidth = 33.33;
   final double batteryShellHeight = 16.66;
   final double chargeWidth = 26.66;
