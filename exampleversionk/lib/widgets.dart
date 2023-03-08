@@ -39,75 +39,75 @@ class DeviceScreen extends StatefulWidget {
 
 class _DeviceScreenPageState extends State<DeviceScreen> {
   double _glassSliderValue = 0; //for Glass Controller, default is 0
-  double masterBatterypercentage =
-      0; // Initializing masterbattery percentage value
-  double slaveBatterypercentage =
-      0; //Initializing slavebattery percentage value
+  double centralBatterypercentage =
+      0; // Initializing central battery percentage value
+  double peripheralBatterypercentage =
+      0; //Initializing peripheral battery percentage value
   var databaseService =
       DatabaseService.instance; //Database instance initialization
-  bool isLoadingMaster = true; //Master data loader
-  bool isLoadingSlave = true; //Slave data loader
-  Timer? mastertimer; // Timer declaration for master voltage load
-  Timer? slavetimer; // Timer declaration for slave voltage load
+  bool isLoadingCentral = true; //Central data loader
+  bool isLoadingPeripheral = true; //Peripheral data loader
+  Timer? centraltimer; // Timer declaration for central voltage load
+  Timer? peripheraltimer; // Timer declaration for peripheral voltage load
 
-  List<CentralDBmodel> mastervoldataDateShow =
-      []; //List declaration w.r.t master database model class
-  List<PeripheralDBmodel> slavevoldataDateShow =
-      []; //List declaration w.r.t slave database model class
+  List<CentralDBmodel> centralvoldataDateShow =
+      []; //List declaration w.r.t central database model class
+  List<PeripheralDBmodel> peripheralvoldataDateShow =
+      []; //List declaration w.r.t peripheral database model class
 
-// Function for getting data from master table and view in the front end app.
-  Future<void> getMasterFromDatabase() async {
-    List<CentralDBmodel> masterFromDb = await databaseService
-        .getLatestDataFromCentralTable(); //This line is loading the latest data from the master table. The row is configurable and changes is require in the database query
+// Function for getting data from central table and view in the front end app.
+  Future<void> getCentralFromDatabase() async {
+    List<CentralDBmodel> centralFromDb = await databaseService
+        .getLatestDataFromCentralTable(); //This line is loading the latest data from the central table. The row is configurable and changes is require in the database query
     setState(() {
-      mastervoldataDateShow =
-          masterFromDb; //loading the data in the declared list mastervoldataDateShow[]
-      isLoadingMaster = false;
+      centralvoldataDateShow =
+          centralFromDb; //loading the data in the declared list centralvoldataDateShow[]
+      isLoadingCentral = false;
     });
   }
 
-// Function for getting data from slave table and view in the front end app.
-  Future<void> getSlaveFromDatabase() async {
-    List<PeripheralDBmodel> slaveFromDb = await databaseService
-        .getLatestDataFromPeripheralTable(); //This line is loading the latest data from the slave table. The row is configurable and changes is require in the database query
+// Function for getting data from peripheral table and view in the front end app.
+  Future<void> getPeripheralFromDatabase() async {
+    List<PeripheralDBmodel> peripheralFromDb = await databaseService
+        .getLatestDataFromPeripheralTable(); //This line is loading the latest data from the peripheral table. The row is configurable and changes is require in the database query
     setState(() {
-      slavevoldataDateShow =
-          slaveFromDb; //loading the data in the declared list slavevoldataDateShow[]
-      isLoadingSlave = false;
+      peripheralvoldataDateShow =
+          peripheralFromDb; //loading the data in the declared list peripheralvoldataDateShow[]
+      isLoadingPeripheral = false;
     });
   }
 
-//This function calculating the difference of master voltage to the previous voltage.Datasource master voltage table
-  Future<double> getmasterDifferenceValue(double mastervoltage) async {
+//This function calculating the difference of central voltage to the previous voltage.Datasource central voltage table
+  Future<double> getcentralDifferenceValue(double centralvoltage) async {
     double difference = 0.0;
-    List<CentralDBmodel> masterFromDb = await databaseService
-        .getAllDataFromCentralTable(); //This line loading all the master data in the list for difference calculation
-    int index = masterFromDb.length - 1;
-    if (masterFromDb.isEmpty) {
-      difference = mastervoltage -
-          mastervoltage; //data table 1st row diffence calculation
+    List<CentralDBmodel> centralFromDb = await databaseService
+        .getAllDataFromCentralTable(); //This line loading all the central data in the list for difference calculation
+    int index = centralFromDb.length - 1;
+    if (centralFromDb.isEmpty) {
+      difference = centralvoltage -
+          centralvoltage; //data table 1st row diffence calculation
     } else {
-      difference = mastervoltage -
-          double.parse(masterFromDb[index]
+      difference = centralvoltage -
+          double.parse(centralFromDb[index]
               .CV); //data table all row's diffence calculation except 1st row
     }
     return difference;
   }
 
-//This function calculating the difference of slave voltage to the previous voltage. Datasource slave voltage table
-  Future<double> getslaveDifferenceValue(double slavevoltage) async {
+//This function calculating the difference of peripheral voltage to the previous voltage. Datasource peripheral voltage table
+  Future<double> getPeripheralDifferenceValue(double peripheralvoltage) async {
     double difference = 0.0;
-    List<PeripheralDBmodel> slaveFromDb = await databaseService
-        .getAllDataFromPeripheralTable(); //This line loading all the master data in the list for difference calculation
-    int index = slaveFromDb.length - 1;
-    if (slaveFromDb.isEmpty) {
-      difference =
-          slavevoltage - slavevoltage; //data table 1st row diffence calculation
+    List<PeripheralDBmodel> peripheralFromDb = await databaseService
+        .getAllDataFromPeripheralTable(); //This line loading all the peripheral data in the list for difference calculation
+    int index = peripheralFromDb.length - 1;
+    if (peripheralFromDb.isEmpty) {
+      difference = peripheralvoltage -
+          peripheralvoltage; //data table 1st row diffence calculation
     } else {
-      difference = slavevoltage -
-          double.parse(slaveFromDb[index]
+      difference = peripheralvoltage -
+          double.parse(peripheralFromDb[index]
               .PV); //data table all row's diffence calculation except 1st row
-      log(slaveFromDb[index].PV);
+      log(peripheralFromDb[index].PV);
     }
     return difference;
   }
@@ -122,70 +122,11 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
   @override
   void dispose() {
     super.dispose();
-    mastertimer!.cancel(); //master timer cancellation once app not in use
-    slavetimer!.cancel(); //slave timer cancellation once app not in use
+    centraltimer!.cancel(); //master timer cancellation once app not in use
+    peripheraltimer!.cancel(); //slave timer cancellation once app not in use
   }
 
-/*This function
-  List<DataRow> getMasterTableValues() {
-    List<DataRow> rows = [];
-    for (var i = 0; i < mastervoldataDateShow.length; i++) {
-      rows.add(
-        DataRow(
-          cells: <DataCell>[
-            /*DataCell(Text(
-              mastervoldataDateShow[i].MV,
-              textAlign: TextAlign.center,
-            )),*/
-            DataCell(Text(
-              mastervoldataDateShow[i].TIME,
-              textAlign: TextAlign.center,
-            )),
-            DataCell(Text(
-              double.parse(mastervoldataDateShow[i].MVP).toString(),
-              textAlign: TextAlign.center,
-            )),
-            /*DataCell(Text(
-              double.parse(mastervoldataDateShow[i].MVD).toStringAsFixed(2),
-              textAlign: TextAlign.center,
-            )),*/
-          ],
-        ),
-      );
-    }
-    return rows;
-  }*/
-
-  /*Newly added
-  List<DataRow> getSlaveTableValues() {
-    List<DataRow> rows = [];
-    for (var i = 0; i < slavevoldataDateShow.length; i++) {
-      rows.add(
-        DataRow(
-          cells: <DataCell>[
-            /*DataCell(Text(
-              slavevoldataDateShow[i].SV,
-              textAlign: TextAlign.center,
-            )),*/
-            DataCell(Text(
-              slavevoldataDateShow[i].TIME,
-              textAlign: TextAlign.center,
-            )),
-            DataCell(Text(
-              double.parse(slavevoldataDateShow[i].SVP).toStringAsFixed(2),
-              textAlign: TextAlign.center,
-            )),
-            /*DataCell(Text(
-              double.parse(slavevoldataDateShow[i].SVD).toStringAsFixed(2),
-              textAlign: TextAlign.center,
-            )),*/
-          ],
-        ),
-      );
-    }
-    return rows;
-  }*/
-
+//method to have slave and master table time
   String getCurrentDateTime() {
     var now = DateTime.now();
     //var month = now.month.toString().padLeft(2, '0');
@@ -197,9 +138,9 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     return formattedDate;
   }
 
-//Method to get master voltage parameter from the prototype
+//Method to get central voltage parameter from the remote device
 
-  Future<int> getmvcharacter2Value(List<BluetoothService> services) async {
+  Future<int> getcvcharacter2Value(List<BluetoothService> services) async {
     List service4ListIntermediate =
         []; // create list to temporarily hold service4List data
     List service4List =
@@ -233,11 +174,11 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       service4List = service4ListIntermediate[
           0]; // obtains the first list from the list of lists. This list has all the data we need
       //service4List = ["A1", 05, 6, 2];
-      log('master service4List: ${service4List}');
+      log('central service4List: ${service4List}');
       service4Characteristic1 = service4List.elementAt(0) * 256 +
           (service4List.elementAt(
               1)); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
-      log('master service4Characteristic1: ${service4Characteristic1}');
+      log('central service4Characteristic1: ${service4Characteristic1}');
 
       // this if-statement checks if the service4Characteristic1 received a value or not, and returns the service4Characteristic1 value if it did
       if (service4Characteristic1 != -1) {
@@ -249,7 +190,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     return -1;
   }
 
-//Method to get slave voltage parameter from the prototype
+//Method to get peripheral voltage parameter from the prototype
   Future<int> getpvcharacter2Value(List<BluetoothService> services) async {
     List service4ListIntermediate =
         []; // create list to temporarily hold service4List data
@@ -264,8 +205,8 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       BluetoothService service4 = services[3]; // assigns service 4
       var service4Characteristics = service4
           .characteristics; // places all the characteristics of service 4 into a Characteristics list
-      var character2uuid = service4Characteristics[1].uuid;
-      print('character 2 service uuid: $character2uuid');
+      //var character2uuid = service4Characteristics[1].uuid;
+      //print('character 2 service uuid: $character2uuid');
       // this for-loop obtains the value of each characteristic and puts it into a list called value
       if (isReading == false) {
         for (BluetoothCharacteristic c in service4Characteristics) {
@@ -296,83 +237,80 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
   }
 
   //Method to convert collected parament value into battery percentage and load percentage,time, voltage value to master table
-  getMasterVoltage(BluetoothDevice device) async {
+  getCentralVoltage(BluetoothDevice device) async {
     List<BluetoothService> services = await device.discoverServices();
     try {
-      int _mvcharacter2Value = await getmvcharacter2Value(
-          services); // assigns the returned master voltage value to a variable
-      var mvcv = (_mvcharacter2Value + 100) / 1000;
-      print('mvcv = ${mvcv}');
-      var mvmax = 4.4;
-      var mvmin = 3;
+      int _cvcharacter2Value = await getcvcharacter2Value(
+          services); // assigns the returned central voltage value to a variable
+      var cv = (_cvcharacter2Value + 100) / 1000;
+      print('mvcv = ${cv}');
+      var cvmax = 4.4;
+      var cvmin = 3;
       setState(() {
-        masterBatterypercentage = ((mvcv - mvmin) / (mvmax - mvmin)) * 100;
+        centralBatterypercentage = ((cv - cvmin) / (cvmax - cvmin)) * 100;
       });
-      log('Master Battery Percentage: $masterBatterypercentage');
-      double difference = await getmasterDifferenceValue(mvcv);
+      log('central Battery Percentage: $centralBatterypercentage');
+      double difference = await getcentralDifferenceValue(cv);
       await databaseService.addToCentralDatabase(
-        mvcv.toString(),
+        cv.toString(),
         getCurrentDateTime(),
-        masterBatterypercentage.toString(),
+        centralBatterypercentage.toString(),
         difference.toString(),
       );
-      await getMasterFromDatabase();
+      await getCentralFromDatabase();
       print('Successfully master data loaded in the database');
-      return masterBatterypercentage;
+      return centralBatterypercentage;
     } catch (err) {
       print('Caught Error: $err');
     }
   }
 
 //Method to convert collected parament value into battery percentage and load percentage,time, voltage value to slave table
-  getSlaveVoltage(BluetoothDevice device) async {
+  getPeripheralVoltage(BluetoothDevice device) async {
     List<BluetoothService> services = await device.discoverServices();
     try {
       int _pvcharacter2Value = await getpvcharacter2Value(
-          services); // assigns the returned master voltage value to a variable
+          services); // assigns the returned peripheral voltage value to a variable
       print('_pvcharacter2Value = ${_pvcharacter2Value + 100}');
-      var pvcv = (_pvcharacter2Value + 100) /
+      var pv = (_pvcharacter2Value + 100) /
           1000; // converts returned future hexadecimal data type method to a double
-      print('pvcv = ${pvcv}');
+      print('pvcv = ${pv}');
       var pvmax = 4.4;
       var pvmin = 3;
       setState(() {
-        slaveBatterypercentage = ((pvcv - pvmin) / (pvmax - pvmin)) * 100;
+        peripheralBatterypercentage = ((pv - pvmin) / (pvmax - pvmin)) * 100;
       });
-      log('Slave Battery Percentage: $slaveBatterypercentage');
-      double difference = await getslaveDifferenceValue(pvcv);
+      log('Peripheral Battery Percentage: $peripheralBatterypercentage');
+      double difference = await getPeripheralDifferenceValue(pv);
       await databaseService.addToPeripheralDatabase(
-        pvcv.toStringAsFixed(2),
+        pv.toStringAsFixed(2),
         getCurrentDateTime(),
-        slaveBatterypercentage.toString(),
+        peripheralBatterypercentage.toString(),
         difference.toString(),
       );
-      await getSlaveFromDatabase();
-      print('Successfully Slave data loaded in the database');
-      return slaveBatterypercentage;
+      await getPeripheralFromDatabase();
+      print('Successfully peripheral data loaded in the database');
+      return peripheralBatterypercentage;
     } catch (err) {
       print('Caught Error: $err');
     }
   }
 
-//method to have slave and master table timee
+//Method to iniitate timer for central and peripheral voltage data for this page loading.
   getBatteryVoltage() {
-    slavetimer = Timer.periodic(
+    peripheraltimer = Timer.periodic(
         Duration(
           seconds: 60,
         ), (timer) {
-      getSlaveVoltage(widget.device);
-      log("Slave Timer Working");
-      //return timer.cancel();
+      getPeripheralVoltage(widget.device);
+      log("peripheral Timer Working");
     });
-    mastertimer = Timer.periodic(
+    centraltimer = Timer.periodic(
         Duration(
           seconds: 65,
         ), (timer) {
-      log("Master Timer Working");
-      getMasterVoltage(widget.device);
-
-      //return timer.cancel();
+      log("central Timer Working");
+      getCentralVoltage(widget.device);
     });
   }
 
@@ -386,7 +324,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       if (service4.characteristics.isNotEmpty) {
         service4.characteristics[2].write([hexValue]);
         //Service id for control code characteristic '55441004-3322-1100-0000-000000000000'
-        log('Cha4 service UUID: ${service4.characteristics[2].uuid}');
+        //log('Cha4 service UUID: ${service4.characteristics[2].uuid}');
       }
     }
   }
@@ -410,19 +348,6 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
           ),
         ),
         SizedBox(height: 30),
-        /*ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.all(4.0),
-              textStyle: const TextStyle(fontSize: 20),
-              //backgroundColor: Colors.black,
-            ),
-            child: Text("PWM"),
-            onPressed: () {
-              sendHexValue(services: services, hexValue: 0x01);
-              log('0x01 hex value successfully sent to central');
-            }),
-        SizedBox(height: 20),*/
         Container(
           child: Text("Glass Controller", style: TextStyle(fontSize: 20)),
         ),
@@ -465,139 +390,6 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
             ),
           ),
         ),
-        /*ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.all(4.0),
-              textStyle: const TextStyle(fontSize: 20),
-              //backgroundColor: Colors.black,
-            ),
-            child: Text("LIGHT SENSOR"),
-            onPressed: () {
-              sendHexValue(services: services, hexValue: 0x02);
-              log('0x02 hex value successfully sent to central');
-            }),*/
-        //SizedBox(height: 20),
-        // SizedBox(height: 20),
-        /*Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Column(
-              children: [
-                /*ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Color(0xFF00425A),
-                    padding: const EdgeInsets.all(4.0),
-                    textStyle: const TextStyle(fontSize: 20),
-                    //backgroundColor: Colors.black,
-                  ),
-                  child: Text("Battery"), //slave voltage start
-                  onPressed: () {
-                    slavetimer = Timer.periodic(
-                        Duration(
-                          seconds: 5,
-                        ), (timer) {
-                      getSlaveVoltage(widget.device);
-                      log("Slave Timer Working");
-                      //return timer.cancel();
-                    });
-                    mastertimer = Timer.periodic(
-                        Duration(
-                          seconds: 65,
-                        ), (timer) {
-                      log("Master Timer Working");
-                      getMasterVoltage(widget.device);
-
-                      //return timer.cancel();
-                    });
-                  },
-                ),*/
-                /* isLoadingSlave == true
-                    ? Container()
-                    : Column(
-                        children: [
-                          /*Container(
-                            child: (Icon(Icons.battery_charging_full,
-                                size: 150,
-                                color:
-                                    double.parse(slavevoldataDateShow[0].SVP) >
-                                            20
-                                        ? Colors.green
-                                        : Colors.red)),
-                          ),*/
-                          RotatedBox(
-                            quarterTurns: -1,
-                            child: CustomPaint(
-                              size: const Size(150, 150),
-                              painter: CustomBatteryPainter(
-                                charge:
-                                    double.parse(slavevoldataDateShow[0].SVP) <
-                                            0
-                                        ? 0
-                                        : double.parse(
-                                                slavevoldataDateShow[0].SVP) +
-                                            250,
-                                batteryColor: Colors.green,
-                              ),
-                            ),
-                          ),
-                          Text(
-                              "${double.parse(slavevoldataDateShow[0].SVP).toStringAsFixed(0)}" +
-                                  "%"),
-                        ],
-                      ),*/
-              ],
-            ),
-            /*Column(
-              children: [
-                /*ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Color(0xFF00425A),
-                    padding: const EdgeInsets.all(4.0),
-                    textStyle: const TextStyle(fontSize: 20),
-                    //backgroundColor: Colors.black,
-                  ),
-                  child: Text("RIGHT"), //master voltage start
-                  onPressed: () {
-                    mastertimer = Timer.periodic(
-                        Duration(
-                          seconds: 5,
-                        ), (timer) {
-                      log("Timer Working");
-                      getMasterVoltage(widget.device);
-
-                      //return timer.cancel();
-                    });
-                  },
-                ),*/
-                /*isLoadingMaster == true
-                    ? Container()
-                    : Column(
-                        children: [
-                          Container(
-                            // width: 150,
-                            // height: 150,
-
-                            // ignore: prefer_const_constructors
-                            child: (Icon(Icons.battery_charging_full,
-                                size: 150,
-                                color:
-                                    double.parse(mastervoldataDateShow[0].MVP) >
-                                            20
-                                        ? Colors.green
-                                        : Colors.red)),
-                          ),
-                          Text(
-                              "${double.parse(mastervoldataDateShow[0].MVP).toStringAsFixed(0)}" +
-                                  "%"),
-                        ],
-                      ),*/
-              ],
-            ),*/
-          ],
-        ),*/
         SizedBox(height: 100),
         ElevatedButton(
             onPressed: () {
@@ -665,7 +457,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                 //Spacer(),
                 Row(
                   children: [
-                    isLoadingSlave == true
+                    isLoadingPeripheral == true
                         ? Container()
                         : Column(
                             children: [
@@ -680,17 +472,19 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                                   size: const Size(40, 40),
                                   painter: CustomBatteryPainter(
                                     charge: double.parse(
-                                                slavevoldataDateShow[0].PVP) <=
+                                                peripheralvoldataDateShow[0]
+                                                    .PVP) <=
                                             0
                                         ? 0
                                         : double.parse(
-                                            slavevoldataDateShow[0].PVP),
+                                            peripheralvoldataDateShow[0].PVP),
                                     batteryColor: (double.parse(
-                                                    slavevoldataDateShow[0]
+                                                    peripheralvoldataDateShow[0]
                                                         .PVP) <
                                                 15 &&
-                                            double.parse(slavevoldataDateShow[0]
-                                                    .PVP) >=
+                                            double.parse(
+                                                    peripheralvoldataDateShow[0]
+                                                        .PVP) >=
                                                 0)
                                         ? Colors.red
                                         : Colors.green,
@@ -698,12 +492,12 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                                 ),
                               ),
                               Text(
-                                  "${double.parse(slavevoldataDateShow[0].PVP).toStringAsFixed(0)}" +
+                                  "${double.parse(peripheralvoldataDateShow[0].PVP).toStringAsFixed(0)}" +
                                       "%",
                                   style: TextStyle(fontSize: 6)),
                             ],
                           ),
-                    isLoadingMaster == true
+                    isLoadingCentral == true
                         ? Container()
                         : Column(
                             children: [
@@ -718,17 +512,18 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                                   size: const Size(40, 40),
                                   painter: CustomBatteryPainter(
                                     charge: double.parse(
-                                                mastervoldataDateShow[0].CVP) <=
+                                                centralvoldataDateShow[0]
+                                                    .CVP) <=
                                             0
                                         ? 0
                                         : double.parse(
-                                            mastervoldataDateShow[0].CVP),
+                                            centralvoldataDateShow[0].CVP),
                                     batteryColor: (double.parse(
-                                                    mastervoldataDateShow[0]
+                                                    centralvoldataDateShow[0]
                                                         .CVP) <
                                                 15 &&
                                             double.parse(
-                                                    mastervoldataDateShow[0]
+                                                    centralvoldataDateShow[0]
                                                         .CVP) >=
                                                 0)
                                         ? Colors.red
@@ -737,7 +532,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                                 ),
                               ),
                               Text(
-                                  "${double.parse(mastervoldataDateShow[0].CVP).toStringAsFixed(0)}" +
+                                  "${double.parse(centralvoldataDateShow[0].CVP).toStringAsFixed(0)}" +
                                       "%",
                                   style: TextStyle(fontSize: 6)),
                             ],
