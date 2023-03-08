@@ -23,58 +23,58 @@ class Detailspage extends StatefulWidget {
 }
 
 class _DetailspageState extends State<Detailspage> {
-  List<CentralDBmodel> masterdetails = [];
-  List<PeripheralDBmodel> slavedetails = [];
+  List<CentralDBmodel> centraldetails = [];
+  List<PeripheralDBmodel> peripheraldetails = [];
   var databaseService =
       DatabaseService.instance; //Database instance initialization
-  bool isLoadingMaster = true;
-  bool isLoadingSlave = true;
+  bool isLoadingCentral = true;
+  bool isLoadingPeripheral = true;
 
-  Future<void> getMasterFromDatabase() async {
-    List<CentralDBmodel> masterFromDb =
+  Future<void> getCentralFromDatabase() async {
+    List<CentralDBmodel> centralFromDb =
         await databaseService.getLatestDataFromCentralTable(
             limit:
                 '3'); //This line is loading the latest data from the master table. The row is configurable and changes is require in the database query
     setState(() {
-      masterdetails =
-          masterFromDb; //loading the data in the declared list mastervoldataDateShow[]
-      isLoadingMaster = false;
+      centraldetails =
+          centralFromDb; //loading the data in the declared list mastervoldataDateShow[]
+      isLoadingCentral = false;
     });
   }
 
-  Future<void> getSlaveFromDatabase() async {
-    List<PeripheralDBmodel> slaveFromDb =
+  Future<void> getPeripheralFromDatabase() async {
+    List<PeripheralDBmodel> peripheralFromDb =
         await databaseService.getLatestDataFromPeripheralTable(
             limit:
                 '3'); //This line is loading the latest data from the slave table. The row is configurable and changes is require in the database query
     setState(() {
-      slavedetails =
-          slaveFromDb; //loading the data in the declared list slavevoldataDateShow[]
-      isLoadingSlave = false;
+      peripheraldetails =
+          peripheralFromDb; //loading the data in the declared list slavevoldataDateShow[]
+      isLoadingPeripheral = false;
     });
   }
 
   //This function
-  List<DataRow> getMasterdetails() {
+  List<DataRow> getCentraldetails() {
     List<DataRow> rows = [];
-    for (var i = 0; i < masterdetails.length; i++) {
+    for (var i = 0; i < centraldetails.length; i++) {
       rows.add(
         DataRow(
           cells: <DataCell>[
             DataCell(Text(
-              masterdetails[i].CV,
+              centraldetails[i].CV,
               textAlign: TextAlign.center,
             )),
             DataCell(Text(
-              masterdetails[i].TIME,
+              centraldetails[i].TIME,
               textAlign: TextAlign.center,
             )),
             DataCell(Text(
-              double.parse(masterdetails[i].CVP).toStringAsFixed(2),
+              double.parse(centraldetails[i].CVP).toStringAsFixed(2),
               textAlign: TextAlign.center,
             )),
             DataCell(Text(
-              double.parse(masterdetails[i].CVD).toStringAsFixed(2),
+              double.parse(centraldetails[i].CVD).toStringAsFixed(2),
               textAlign: TextAlign.center,
             )),
           ],
@@ -85,26 +85,26 @@ class _DetailspageState extends State<Detailspage> {
   }
 
   //Newly added
-  List<DataRow> getSlavedetails() {
+  List<DataRow> getPeripheraldetails() {
     List<DataRow> rows = [];
-    for (var i = 0; i < slavedetails.length; i++) {
+    for (var i = 0; i < peripheraldetails.length; i++) {
       rows.add(
         DataRow(
           cells: <DataCell>[
             DataCell(Text(
-              slavedetails[i].PV,
+              peripheraldetails[i].PV,
               textAlign: TextAlign.center,
             )),
             DataCell(Text(
-              slavedetails[i].TIME,
+              peripheraldetails[i].TIME,
               textAlign: TextAlign.center,
             )),
             DataCell(Text(
-              double.parse(slavedetails[i].PVP).toStringAsFixed(2),
+              double.parse(peripheraldetails[i].PVP).toStringAsFixed(2),
               textAlign: TextAlign.center,
             )),
             DataCell(Text(
-              double.parse(slavedetails[i].PVD).toStringAsFixed(2),
+              double.parse(peripheraldetails[i].PVD).toStringAsFixed(2),
               textAlign: TextAlign.center,
             )),
           ],
@@ -116,8 +116,8 @@ class _DetailspageState extends State<Detailspage> {
 
   @override
   void initState() {
-    getMasterFromDatabase();
-    getSlaveFromDatabase();
+    getCentralFromDatabase();
+    getPeripheralFromDatabase();
     super.initState();
   }
 
@@ -135,18 +135,10 @@ class _DetailspageState extends State<Detailspage> {
                 height: 60,
                 width: 60,
               ),
-              /*SizedBox(
-                width: 270,
-              ),
-              Image.asset(
-                'assets/images/Air_Force_Research_Laboratory_PNG.png',
-                height: 60,
-                width: 60,
-              ),*/
             ],
           ),
           ElevatedButton(onPressed: () {}, child: Text('LEFT')),
-          isLoadingMaster
+          isLoadingCentral
               ? Center(
                   child: CircularProgressIndicator(),
                 )
@@ -190,10 +182,10 @@ class _DetailspageState extends State<Detailspage> {
                       ),
                     ),
                   ],
-                  rows: getMasterdetails(),
+                  rows: getCentraldetails(),
                 ),
           ElevatedButton(onPressed: () {}, child: Text('RIGHT')),
-          isLoadingSlave == true
+          isLoadingPeripheral == true
               ? Container()
               : DataTable(
                   columnSpacing: 30,
@@ -234,7 +226,7 @@ class _DetailspageState extends State<Detailspage> {
                       ),
                     ),
                   ],
-                  rows: getSlavedetails(),
+                  rows: getPeripheraldetails(),
                 ),
         ],
       ),

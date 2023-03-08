@@ -32,11 +32,12 @@ class DatabaseService {
   }
 
   Future<dynamic> initDB() async {
-    Directory directory = await getApplicationDocumentsDirectory();
+    //Directory directory = await getApplicationDocumentsDirectory();
+    Directory directory = await getVoltageDataDirectory();
     final path = join(directory.path, 'voltageData.db'); //Main database name
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
-      //Table creation for central voltage data. This table has 4 column.
+      //Table creation for central voltage data. This table has 5 column.
       await db.execute('CREATE TABLE centralvoltageData('
           'id INTEGER PRIMARY KEY AUTOINCREMENT ,'
           'TIME TEXT DEFAULT "0",'
