@@ -3,7 +3,7 @@
 
 //AMI LOGO                 Peripheral(Char2) and Central(Char3) battery icon
 //Device connection status
-//                 **  PWM button  **  Once press it send 0x01 to Char4.
+//                 **     PWM      **  Once press it send 0x01 to Char4.
 //                 ** Glass Slider **  Once change it gives the PWM duty cycle value to char1.
 //                 ** LIGHT SENSOR **  Once press it send the 0x02 to Char4.
 //                 **Details Button**  Once press it will redirect to another page.
@@ -21,8 +21,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'battery_charge_painter.dart';
-import 'db/model/central_table_model.dart'; //master database model initialize
-import 'db/model/peripheral_table_model.dart'; //slave database model initialize
+import 'db/model/central_table_model.dart'; //central database model initialize
+import 'db/model/peripheral_table_model.dart'; //peripheral database model initialize
 import 'db/service/database_service.dart'; // database serice with seperate sql query for different method
 import 'details.dart'; //database service initilize include
 
@@ -122,11 +122,12 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
   @override
   void dispose() {
     super.dispose();
-    centraltimer!.cancel(); //master timer cancellation once app not in use
-    peripheraltimer!.cancel(); //slave timer cancellation once app not in use
+    centraltimer!.cancel(); //central timer cancellation once app not in use
+    peripheraltimer!
+        .cancel(); //peripheral timer cancellation once app not in use
   }
 
-//method to have slave and master table time
+//method to have central and peripheral table time
   String getCurrentDateTime() {
     var now = DateTime.now();
     //var month = now.month.toString().padLeft(2, '0');
@@ -146,7 +147,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     List service4List =
         []; // creates list to hold the final values of the service 4 characteristics
     int service4Characteristic1 =
-        -1; // initializes the value of characteristic 2 (master voltage) of service 4
+        -1; // initializes the value of characteristic 2 (central voltage) of service 4
     bool isReading = false;
 
     // this if statement checks if there are four services and executes the for-loop if there are
@@ -154,16 +155,11 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       BluetoothService service4 = services[3]; // assigns service 4
       var service4Characteristics = service4
           .characteristics; // places all the characteristics of service 4 into a Characteristics list
-      //var character3uuid = service4Characteristics[1].uuid;
-      //print('character 4 service uuid: $character3uuid');
-
       // this for-loop obtains the value of each characteristic and puts it into a list called value
       if (isReading == false) {
         for (BluetoothCharacteristic c in service4Characteristics) {
-          if //(c.properties.read && c.uuid == character3uuid)
-              //Char3 is assigned for master voltage. Service id: 55441003-3322-1100-0000-000000000000
-              (c.properties.read &&
-                  c.uuid == Guid('55441003-3322-1100-0000-000000000000')) {
+          if (c.properties.read &&
+              c.uuid == Guid('55441003-3322-1100-0000-000000000000')) {
             isReading = true;
             List<int> value = await c.read(); // adds the c value to the list
             service4ListIntermediate.add(value);
@@ -197,7 +193,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
 
     List service4List = [];
     int service4Characteristic1 =
-        -1; // initializes the value of characteristic 2 (master voltage) of service 4
+        -1; // initializes the value of characteristic 2 (central voltage) of service 4
     bool isReading = false;
 
     // this if statement checks if there are four services and executes the for-loop if there are
@@ -205,23 +201,18 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       BluetoothService service4 = services[3]; // assigns service 4
       var service4Characteristics = service4
           .characteristics; // places all the characteristics of service 4 into a Characteristics list
-      //var character2uuid = service4Characteristics[1].uuid;
-      //print('character 2 service uuid: $character2uuid');
       // this for-loop obtains the value of each characteristic and puts it into a list called value
       if (isReading == false) {
         for (BluetoothCharacteristic c in service4Characteristics) {
-          if //(c.properties.read && c.uuid == character2uuid)
-              //Char2 is assigned for peripheral voltage. Service id: 55441002-3322-1100-0000-000000000000
-              (c.properties.read &&
-                  c.uuid == Guid('55441002-3322-1100-0000-000000000000')) {
-            //isReading = true;
+          if (c.properties.read &&
+              c.uuid == Guid('55441002-3322-1100-0000-000000000000')) {
             List<int> value = await c.read(); // adds the c value to the list
             service4ListIntermediate.add(value);
           }
         }
       }
       service4List = service4ListIntermediate[0];
-      log('slave service4List: ${service4List}');
+      log('peripheral service4List: ${service4List}');
       service4Characteristic1 = service4List.elementAt(0) * 256 +
           (service4List.elementAt(
               1)); // obtains the elements from the service 4 characteristics list. They is already in base 10. THe second element in the list is multiplied by 256 to give its true ADC measured value
@@ -236,7 +227,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     return -1;
   }
 
-  //Method to convert collected parament value into battery percentage and load percentage,time, voltage value to master table
+  //Method to convert collected parament value into battery percentage and load percentage,time, voltage value to central table
   getCentralVoltage(BluetoothDevice device) async {
     List<BluetoothService> services = await device.discoverServices();
     try {
@@ -258,14 +249,14 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
         difference.toString(),
       );
       await getCentralFromDatabase();
-      print('Successfully master data loaded in the database');
+      print('Successfully central data loaded in the database');
       return centralBatterypercentage;
     } catch (err) {
       print('Caught Error: $err');
     }
   }
 
-//Method to convert collected parament value into battery percentage and load percentage,time, voltage value to slave table
+//Method to convert collected parament value into battery percentage and load percentage,time, voltage value to peripheral table
   getPeripheralVoltage(BluetoothDevice device) async {
     List<BluetoothService> services = await device.discoverServices();
     try {

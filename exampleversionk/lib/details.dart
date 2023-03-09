@@ -1,14 +1,13 @@
 // This dart file is the redirected page when user press the details button in the application page.
 
 //************************Main Idea Start************************//
-// Syntax understanding: master=left=central || slave=right=peripheral
 // This page uses the central and peripheral dbmodel and database_service
 // to show last three central and peripheral voltage value.
 //************************Main Idea End************************//
 
 //************************Workflow w.r.t written methods************************//
-// getMasterFromDatabase()--> getMasterdetails() --> isLoadingMaster --> Datatable -->getMasterdetails()
-// getSlaveFromDatabase()--> getSlavedetails() --> isLoadingSlave --> Datatable -->getSlavedetails()
+// getCentralFromDatabase()--> getCentraldetails() --> isLoadingCentral --> Datatable -->getCentraldetails()
+// getPeripheralFromDatabase()--> getPeripheraldetails() --> isLoadingPeripheral --> Datatable -->getPeripheraldetails()
 
 import 'package:flutter/material.dart';
 import 'db/model/central_table_model.dart';
