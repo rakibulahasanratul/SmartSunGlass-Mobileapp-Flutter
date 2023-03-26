@@ -1,4 +1,4 @@
-package com.pauldemarco.flutter_blue_example;
+package com.pauldemarco.smartglass;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
