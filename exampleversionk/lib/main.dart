@@ -1,9 +1,11 @@
 //This dart file is the main entry point of the flutter project.
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'widgets.dart';
 import 'db/service/database_service.dart'; //DB service package initialize
+import 'package:flutter_jailbreak_detection/flutter_jailbreak_detection.dart';
 
 void main() {
   runApp(FlutterBlueApp());
@@ -17,8 +19,35 @@ class FlutterBlueApp extends StatefulWidget {
 //Defining database service class for the entire app
 class _FlutterBlueAppState extends State<FlutterBlueApp> {
   var databaseService = DatabaseService.instance;
+  bool? _jailbroken;
+  bool? _developerMode;
+
+  Future<void> initPlatformState() async {
+    bool jailbroken;
+    bool developerMode;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      jailbroken = await FlutterJailbreakDetection.jailbroken;
+      developerMode = await FlutterJailbreakDetection.developerMode;
+    } on PlatformException {
+      jailbroken = true;
+      developerMode = true;
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _jailbroken = jailbroken;
+      _developerMode = developerMode;
+    });
+  }
+
   @override
   void initState() {
+    initPlatformState();
     databaseService.initDB().then((value) {
       databaseService
           .deleteCentralVoltageData(); //central data table delete once app is close
@@ -32,16 +61,18 @@ class _FlutterBlueAppState extends State<FlutterBlueApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       color: Colors.lightBlue,
-      home: StreamBuilder<BluetoothState>(
-          stream: FlutterBlue.instance.state,
-          initialData: BluetoothState.unknown,
-          builder: (c, snapshot) {
-            final state = snapshot.data;
-            if (state == BluetoothState.on) {
-              return FindDevicesScreen();
-            }
-            return BluetoothOffScreen(state: state);
-          }),
+      home: _jailbroken == true
+          ? Text("Not accessible")
+          : StreamBuilder<BluetoothState>(
+              stream: FlutterBlue.instance.state,
+              initialData: BluetoothState.unknown,
+              builder: (c, snapshot) {
+                final state = snapshot.data;
+                if (state == BluetoothState.on) {
+                  return FindDevicesScreen();
+                }
+                return BluetoothOffScreen(state: state);
+              }),
     );
   }
 }

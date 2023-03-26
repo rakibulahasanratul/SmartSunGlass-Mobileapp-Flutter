@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.pauldemarco.flutter_blue_example">
+    package="com.pauldemarco.smartglass">
    <application
         android:label="AMI_Version_2023"
         android:icon="@mipmap/ic_launcher">
