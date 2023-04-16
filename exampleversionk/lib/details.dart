@@ -10,6 +10,7 @@
 // getPeripheralFromDatabase()--> getPeripheraldetails() --> isLoadingPeripheral --> Datatable -->getPeripheraldetails()
 
 import 'package:flutter/material.dart';
+import 'data_encryption.dart';
 import 'db/model/central_table_model.dart';
 import 'db/model/peripheral_table_model.dart';
 import 'db/service/database_service.dart';
@@ -28,27 +29,53 @@ class _DetailspageState extends State<Detailspage> {
       DatabaseService.instance; //Database instance initialization
   bool isLoadingCentral = true;
   bool isLoadingPeripheral = true;
+  DataEncryption encryptionController = DataEncryption.instance;
 
   Future<void> getCentralFromDatabase() async {
+    List<CentralDBmodel> centralcrypt = [];
     List<CentralDBmodel> centralFromDb =
-        await databaseService.getLatestDataFromCentralTable(
-            limit:
-                '3'); //This line is loading the latest data from the master table. The row is configurable and changes is require in the database query
+        await databaseService.getLatestDataFromCentralTable(limit: '3');
+    //This line is loading the latest data from the master table. The row is configurable and changes is require in the database query
+    for (var i = 0; i < centralFromDb.length; i++) {
+      String cv = await encryptionController.dencryptData(
+          textToDencrypt: centralFromDb[i].CV);
+      String time = await encryptionController.dencryptData(
+          textToDencrypt: centralFromDb[i].TIME);
+      String cvp = await encryptionController.dencryptData(
+          textToDencrypt: centralFromDb[i].CVP);
+      String cvd = await encryptionController.dencryptData(
+          textToDencrypt: centralFromDb[i].CVD);
+      centralcrypt.add(CentralDBmodel(
+          id: centralFromDb[i].id, CV: cv, TIME: time, CVP: cvp, CVD: cvd));
+    }
     setState(() {
       centraldetails =
-          centralFromDb; //loading the data in the declared list mastervoldataDateShow[]
+          centralcrypt; //loading the data in the declared list mastervoldataDateShow[]
       isLoadingCentral = false;
     });
   }
 
   Future<void> getPeripheralFromDatabase() async {
+    List<PeripheralDBmodel> peripheralcrypt = [];
     List<PeripheralDBmodel> peripheralFromDb =
         await databaseService.getLatestDataFromPeripheralTable(
             limit:
                 '3'); //This line is loading the latest data from the slave table. The row is configurable and changes is require in the database query
+    for (var i = 0; i < peripheralFromDb.length; i++) {
+      String pv = await encryptionController.dencryptData(
+          textToDencrypt: peripheralFromDb[i].PV);
+      String time = await encryptionController.dencryptData(
+          textToDencrypt: peripheralFromDb[i].TIME);
+      String pvp = await encryptionController.dencryptData(
+          textToDencrypt: peripheralFromDb[i].PVP);
+      String pvd = await encryptionController.dencryptData(
+          textToDencrypt: peripheralFromDb[i].PVD);
+      peripheralcrypt.add(PeripheralDBmodel(
+          id: peripheralFromDb[i].id, PV: pv, TIME: time, PVP: pvp, PVD: pvd));
+    }
     setState(() {
       peripheraldetails =
-          peripheralFromDb; //loading the data in the declared list slavevoldataDateShow[]
+          peripheralcrypt; //loading the data in the declared list slavevoldataDateShow[]
       isLoadingPeripheral = false;
     });
   }

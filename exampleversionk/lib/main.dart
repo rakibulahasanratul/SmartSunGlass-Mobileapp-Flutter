@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'data_encryption.dart';
 import 'widgets.dart';
 import 'db/service/database_service.dart'; //DB service package initialize
 import 'package:flutter_jailbreak_detection/flutter_jailbreak_detection.dart';
@@ -21,6 +23,7 @@ class _FlutterBlueAppState extends State<FlutterBlueApp> {
   var databaseService = DatabaseService.instance;
   bool? _jailbroken;
   bool? _developerMode;
+  DataEncryption encryptionController = DataEncryption.instance;
 
   Future<void> initPlatformState() async {
     bool jailbroken;
@@ -47,6 +50,7 @@ class _FlutterBlueAppState extends State<FlutterBlueApp> {
 
   @override
   void initState() {
+    encryptionController.writeValueToSecureStorage();
     initPlatformState();
     databaseService.initDB().then((value) {
       databaseService
@@ -150,8 +154,18 @@ class FindDevicesScreen extends StatelessWidget {
           } else {
             return FloatingActionButton(
                 child: Icon(Icons.search),
-                onPressed: () => FlutterBlue.instance
-                    .startScan(timeout: Duration(seconds: 4)));
+                onPressed: () async {
+                  var scanStatus =
+                      await Permission.bluetoothScan.request().isGranted;
+
+                  var bluetoothConnectStatus =
+                      await Permission.bluetoothConnect.request().isGranted;
+
+                  if (scanStatus && bluetoothConnectStatus) {
+                    FlutterBlue.instance
+                        .startScan(timeout: Duration(seconds: 4));
+                  }
+                });
           }
         },
       ),

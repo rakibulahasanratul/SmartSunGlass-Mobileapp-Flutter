@@ -16,6 +16,7 @@ import 'dart:io'; //provides APIs to deal with files, directories, processes, so
 import 'package:sqflite/sqflite.dart'; // package to store data in the local database
 import 'package:path_provider/path_provider.dart'; //plugin for finding commonly used location of the file system.
 import 'package:path/path.dart'; // path library is designed to import with a prefix
+import '../../data_encryption.dart';
 import '../model/central_table_model.dart'; //Central table model. Any new column is require to expose in the central table model
 import '../model/peripheral_table_model.dart'; //Peripheral table model. Any new column is require to expose in the peripheral table model
 
@@ -24,6 +25,7 @@ class DatabaseService {
   static final DatabaseService instance = DatabaseService._init();
   DatabaseService._init();
   static Database? _database;
+  DataEncryption encryptionController = DataEncryption.instance;
 
   Future<Database?> get database async {
     if (_database != null) return _database;
@@ -59,20 +61,28 @@ class DatabaseService {
   //::::::::::::::::::::: Insert data into "centralvoltageData" table ::::::::::::::::::::
   Future<void> addToCentralDatabase(
       String CV, String TIME, String CVP, String CVD) async {
+    String cv = await encryptionController.encryptData(textToEncrypt: CV);
+    String time = await encryptionController.encryptData(textToEncrypt: TIME);
+    String cvp = await encryptionController.encryptData(textToEncrypt: CVP);
+    String cvd = await encryptionController.encryptData(textToEncrypt: CVD);
     final db = await database;
     await db!.rawQuery(
       "INSERT INTO centralvoltageData(CV,TIME, CVP, CVD) VALUES(?, ?, ?, ?)",
-      [CV, TIME, CVP, CVD],
+      [cv, time, cvp, cvd],
     );
   }
 
 //::::::::::::::::::::: Insert data into "peripheralvoltageData" table ::::::::::::::::::::
   Future<void> addToPeripheralDatabase(
       String PV, String TIME, String PVP, String PVD) async {
+    String pv = await encryptionController.encryptData(textToEncrypt: PV);
+    String time = await encryptionController.encryptData(textToEncrypt: TIME);
+    String pvp = await encryptionController.encryptData(textToEncrypt: PVP);
+    String pvd = await encryptionController.encryptData(textToEncrypt: PVD);
     final db = await database;
     await db!.rawQuery(
       "INSERT INTO peripheralvoltageData(PV,TIME, PVP, PVD) VALUES(?, ?, ?, ?)",
-      [PV, TIME, PVP, PVD],
+      [pv, time, pvp, pvd],
     );
   }
 

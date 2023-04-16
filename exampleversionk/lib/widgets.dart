@@ -21,6 +21,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'battery_charge_painter.dart';
+import 'data_encryption.dart';
 import 'db/model/central_table_model.dart'; //central database model initialize
 import 'db/model/peripheral_table_model.dart'; //peripheral database model initialize
 import 'db/service/database_service.dart'; // database serice with seperate sql query for different method
@@ -49,6 +50,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
   bool isLoadingPeripheral = true; //Peripheral data loader
   Timer? centraltimer; // Timer declaration for central voltage load
   Timer? peripheraltimer; // Timer declaration for peripheral voltage load
+  DataEncryption encryptionController = DataEncryption.instance;
 
   List<CentralDBmodel> centralvoldataDateShow =
       []; //List declaration w.r.t central database model class
@@ -57,22 +59,48 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
 
 // Function for getting data from central table and view in the front end app.
   Future<void> getCentralFromDatabase() async {
-    List<CentralDBmodel> centralFromDb = await databaseService
-        .getLatestDataFromCentralTable(); //This line is loading the latest data from the central table. The row is configurable and changes is require in the database query
+    List<CentralDBmodel> centralcrypt = [];
+    List<CentralDBmodel> centralFromDb =
+        await databaseService.getLatestDataFromCentralTable();
+    for (var i = 0; i < centralFromDb.length; i++) {
+      String cv = await encryptionController.dencryptData(
+          textToDencrypt: centralFromDb[i].CV);
+      String time = await encryptionController.dencryptData(
+          textToDencrypt: centralFromDb[i].TIME);
+      String cvp = await encryptionController.dencryptData(
+          textToDencrypt: centralFromDb[i].CVP);
+      String cvd = await encryptionController.dencryptData(
+          textToDencrypt: centralFromDb[i].CVD);
+      centralcrypt.add(CentralDBmodel(
+          id: centralFromDb[i].id, CV: cv, TIME: time, CVP: cvp, CVD: cvd));
+    } //This line is loading the latest data from the central table. The row is configurable and changes is require in the database query
     setState(() {
       centralvoldataDateShow =
-          centralFromDb; //loading the data in the declared list centralvoldataDateShow[]
+          centralcrypt; //loading the data in the declared list centralvoldataDateShow[]
       isLoadingCentral = false;
     });
   }
 
 // Function for getting data from peripheral table and view in the front end app.
   Future<void> getPeripheralFromDatabase() async {
+    List<PeripheralDBmodel> peripheralcrypt = [];
     List<PeripheralDBmodel> peripheralFromDb = await databaseService
         .getLatestDataFromPeripheralTable(); //This line is loading the latest data from the peripheral table. The row is configurable and changes is require in the database query
+    for (var i = 0; i < peripheralFromDb.length; i++) {
+      String pv = await encryptionController.dencryptData(
+          textToDencrypt: peripheralFromDb[i].PV);
+      String time = await encryptionController.dencryptData(
+          textToDencrypt: peripheralFromDb[i].TIME);
+      String pvp = await encryptionController.dencryptData(
+          textToDencrypt: peripheralFromDb[i].PVP);
+      String pvd = await encryptionController.dencryptData(
+          textToDencrypt: peripheralFromDb[i].PVD);
+      peripheralcrypt.add(PeripheralDBmodel(
+          id: peripheralFromDb[i].id, PV: pv, TIME: time, PVP: pvp, PVD: pvd));
+    }
     setState(() {
       peripheralvoldataDateShow =
-          peripheralFromDb; //loading the data in the declared list peripheralvoldataDateShow[]
+          peripheralcrypt; //loading the data in the declared list peripheralvoldataDateShow[]
       isLoadingPeripheral = false;
     });
   }
@@ -87,9 +115,11 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       difference = centralvoltage -
           centralvoltage; //data table 1st row diffence calculation
     } else {
+      String cv = await encryptionController.dencryptData(
+          textToDencrypt: centralFromDb[index].CV);
       difference = centralvoltage -
-          double.parse(centralFromDb[index]
-              .CV); //data table all row's diffence calculation except 1st row
+          double.parse(
+              cv); //data table all row's diffence calculation except 1st row
     }
     return difference;
   }
@@ -104,9 +134,11 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
       difference = peripheralvoltage -
           peripheralvoltage; //data table 1st row diffence calculation
     } else {
+      String pv = await encryptionController.dencryptData(
+          textToDencrypt: peripheralFromDb[index].PV);
       difference = peripheralvoltage -
-          double.parse(peripheralFromDb[index]
-              .PV); //data table all row's diffence calculation except 1st row
+          double.parse(
+              pv); //data table all row's diffence calculation except 1st row
       log(peripheralFromDb[index].PV);
     }
     return difference;
@@ -503,8 +535,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
                                   size: const Size(40, 40),
                                   painter: CustomBatteryPainter(
                                     charge: double.parse(
-                                                centralvoldataDateShow[0]
-                                                    .CVP) <=
+                                                centralvoldataDateShow[0].CV) <=
                                             0
                                         ? 0
                                         : double.parse(
