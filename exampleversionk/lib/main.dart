@@ -28,7 +28,6 @@ class _FlutterBlueAppState extends State<FlutterBlueApp> {
   Future<void> initPlatformState() async {
     bool jailbroken;
     bool developerMode;
-    // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       jailbroken = await FlutterJailbreakDetection.jailbroken;
       developerMode = await FlutterJailbreakDetection.developerMode;
@@ -36,10 +35,6 @@ class _FlutterBlueAppState extends State<FlutterBlueApp> {
       jailbroken = true;
       developerMode = true;
     }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
     if (!mounted) return;
 
     setState(() {

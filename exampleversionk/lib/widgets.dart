@@ -181,7 +181,6 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     int service4Characteristic1 =
         -1; // initializes the value of characteristic 2 (central voltage) of service 4
     bool isReading = false;
-
     // this if statement checks if there are four services and executes the for-loop if there are
     if (services.length >= 4) {
       BluetoothService service4 = services[3]; // assigns service 4
@@ -192,7 +191,6 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
         for (BluetoothCharacteristic c in service4Characteristics) {
           if (c.properties.read &&
               c.uuid == Guid('55441003-3322-1100-0000-000000000000')) {
-            isReading = true;
             List<int> value = await c.read(); // adds the c value to the list
             service4ListIntermediate.add(value);
           }
@@ -323,14 +321,14 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
   getBatteryVoltage() {
     peripheraltimer = Timer.periodic(
         Duration(
-          seconds: 60,
+          seconds: 5,
         ), (timer) {
       getPeripheralVoltage(widget.device);
       log("peripheral Timer Working");
     });
     centraltimer = Timer.periodic(
         Duration(
-          seconds: 65,
+          seconds: 10,
         ), (timer) {
       log("central Timer Working");
       getCentralVoltage(widget.device);

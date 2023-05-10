@@ -8,13 +8,8 @@ class DataEncryption {
   static DataEncryption instance = DataEncryption._();
 
   final String _secureStorageKey = 'SecureKey';
-  //final String _secureStoragePassword = 'JuMT,^7EMPh``^xbj{jS`m={<)Wy(t&3';
   final String _secureStoragePassword =
       '-W(/Fb"T/S,tRrA78*?{FR_9sBwk<9(M*YwV_sT,sK7bS~MRx*+~\*]&k3D-z4SGw~>`q8Ln_/^;KA*#>NQ_Lfz!uvWXFnFG@{qHy@qgk-y2]S:~u)T7.-cpet"@fd`/';
-
-  //final String _secureStoragePassword = 'wUrAvFtduXgheNWZdUGuFU3USCF5aWABEYPjBhHcUBurhmzZHS6AvY4DD2FFprJs4EZFeurGmY4vGM5EDAfknMBWpwqQWK2aTkMjhNyprSJsjrhuLRPZvJYSKW2nmCRu';
-
-  //Password Generated from "https://passwordsgenerator.net/"
 
   //:::::::::::::::: Write To Secure Storage ::::::::::::::::
   Future<void> writeValueToSecureStorage() async {
