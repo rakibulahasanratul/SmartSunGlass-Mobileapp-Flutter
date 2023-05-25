@@ -1,3 +1,43 @@
+# Android Mobile App
+
+## Pre-Requisite
+### Software
+[Windows PowerShell 5.0 or newer](https://learn.microsoft.com/en-us/powershell/scripting/windows-powershell/install/installing-windows-powershell?view=powershell-7.3)\
+[Git for Windows 2.x](https://git-scm.com/download/win)
+
+
+## Setup and Installation of Flutter SDK
+
+1) Download [flutter_windows_3.7.3-stable.zip or latest file](https://docs.flutter.dev/get-started/install/windows).
+2) Extract and save the entire folder C:\src\flutter directory. First manually create “src” folder in C:\\ drive.
+3) Add “C:\src\flutter\bin” directory in as PATH in Edit environment variables for your account.
+4) Download and install [Android Studio](https://developer.android.com/studio)
+5) Install [Visual Studio 2022 or Visual Studio Build Tools 2022](https://visualstudio.microsoft.com/downloads/) if not done in the windows machine.
+6) Java 8 installed and that your JAVA_HOME environment variable is set to the JDK’s folder.
+7) After installing above tool make sure licenses to compatible with Android SDK platform. Run “flutter doctor --android-licenses” command in windows command mode.
+8) Install [VS Code](https://code.visualstudio.com/)
+9) Run this command in “C:\src\flutter>flutter doctor” to check the proper installation done for the flutter setup. 
+
+### Usefull Link for Flutter SDK installation
+[Official Flutter Guide](https://docs.flutter.dev/get-started/install/windows)\
+[Flutter Installation Guideline:](https://www.youtube.com/watch?v=8saLa5fh0ZI)
+
+
+## Mobile App Installation.
+
+1) Setup an android phone
+	* Enable [Developer options and USB debugging](https://developer.android.com/studio/debug/dev-options)
+	* Using a USB cable, plug your phone into your laptop/computer.
+2) Download the [application code](https://github.com/rakibulahasanratul/AMI_version_2023.) zip file from github repository. Unzip the code file at your desire directory.
+3) Open VS studio
+	* `If phone setup is perfectly done the VS studio detects the android phone.`
+	* `Load the entire code folder in VS code from “File>Open Folder”. Below message will pop up after loading the code file. Click Run pub get”.`
+	* `It will remove all the error. If not go to Terminal>New Terminal, type “flutter pub get” and run.`
+	* `Open the /~~/AMI_version_2023-master\exampleversionk\lib\main.dart from VS code file explorer.`
+	* `Click Run>Start Debugging. It will prompt the debug console in the VS code and app code will started to load in the connected android mobile phone.`
+4) Mobile Application is loaded in the connected smart phone.
+
+***
 [![pub package](https://img.shields.io/pub/v/flutter_blue.svg)](https://pub.dartlang.org/packages/flutter_blue)
 [![Chat](https://img.shields.io/discord/634853295160033301.svg?style=flat-square&colorB=758ED3)](https://discord.gg/Yk5Efra)
 
