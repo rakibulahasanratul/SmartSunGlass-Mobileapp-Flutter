@@ -343,7 +343,7 @@ class _DeviceScreenPageState extends State<DeviceScreen> {
     if (services.length >= 4) {
       BluetoothService service4 = services[3];
       if (service4.characteristics.isNotEmpty) {
-        service4.characteristics[2].write([hexValue]);
+        service4.characteristics[3].write([hexValue]);
         //Service id for control code characteristic '55441004-3322-1100-0000-000000000000'
         //log('Cha4 service UUID: ${service4.characteristics[2].uuid}');
       }
